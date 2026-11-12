@@ -25,6 +25,8 @@ const OUT = path.join(ROOT, 'tools', '.cache', 'visual');
 const ORIGIN = process.env.ORIGIN ?? 'https://crechndo.org';
 const LOCAL = process.env.LOCAL ?? 'http://localhost:4321';
 const WIDTHS = (process.env.WIDTHS ?? '375,768,1440').split(',').map(Number);
+// Écart toléré, en pourcentage de pixels. SEUIL=0 pour tout faire remonter.
+const SEUIL = Number(process.env.SEUIL ?? 0.1);
 
 const PAGES = {
   index: '/',
@@ -108,7 +110,7 @@ async function main() {
       worst = Math.max(worst, pct);
 
       const dh = a.height - b.height;
-      const flag = pct > 0.1 || Math.abs(dh) > 4 ? '✗' : '✓';
+      const flag = pct > SEUIL || Math.abs(dh) > 4 ? '✗' : '✓';
       rows.push(
         `${flag} ${slug.padEnd(36)} ${String(width).padStart(5)}px  ` +
           `${pct.toFixed(3).padStart(7)}%  hauteur ${a.height}/${b.height}` +
@@ -116,7 +118,7 @@ async function main() {
       );
       console.log(rows.at(-1));
 
-      if (pct > 0.1 || Math.abs(dh) > 4) {
+      if (pct > SEUIL || Math.abs(dh) > 4) {
         fs.writeFileSync(path.join(OUT, `${slug}-${width}-diff.png`), PNG.sync.write(diff));
         fs.writeFileSync(path.join(OUT, `${slug}-${width}-origine.png`), PNG.sync.write(a));
         fs.writeFileSync(path.join(OUT, `${slug}-${width}-genere.png`), PNG.sync.write(b));

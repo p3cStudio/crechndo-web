@@ -5,6 +5,11 @@ On applique à la page d'origine exactement les mêmes réécritures d'URL que l
 la génération, puis on compare balise à balise. Tout ce qui reste comme différence
 est soit voulu (balises WordPress purgées, bascule GA4), soit une régression.
 
+Depuis la phase 2, le header et le footer sont réécrits à la main : les comparer au
+balisage d'origine n'aurait plus de sens. La comparaison porte donc sur le <head> et
+sur le contenu de la page — c'est-à-dire sur ce qui n'a pas encore été réécrit.
+Le garde-fou du balisage réécrit, c'est le diff pixel (tools/visual_diff.mjs).
+
 Usage :  python3 tools/diff_html.py [slug…]      (sans argument : les 16 pages)
 """
 from __future__ import annotations
@@ -18,6 +23,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from build_fragments import (  # noqa: E402
     CACHE_RAW,
+    CONTENT_END,
+    CONTENT_START,
     GA_LEGACY_RE,
     purge,
     rewrite_assets,
@@ -38,6 +45,13 @@ def tags(html: str) -> list[str]:
     return [p.strip() for p in parts if p.strip()]
 
 
+def contenu_de_page(body: str) -> str:
+    """Ne garde que le contenu de la page, sans le header ni le footer."""
+    debut = body.index(CONTENT_START)
+    fin = body.index(CONTENT_END) + len(CONTENT_END)
+    return body[debut:fin]
+
+
 def expected(slug: str) -> str:
     with open(os.path.join(CACHE_RAW, f"{slug}.html"), encoding="utf-8") as fh:
         html = purge(fh.read())
@@ -46,7 +60,7 @@ def expected(slug: str) -> str:
     head = rewrite_head(GA_LEGACY_RE.sub("", head))
     body = html[html.index(">", html.index("<body")) + 1:html.index("</body>")]
     body = rewrite_internal_links(rewrite_assets(body))
-    return head + body
+    return head + contenu_de_page(body)
 
 
 def actual(slug: str) -> str:
@@ -55,10 +69,13 @@ def actual(slug: str) -> str:
         html = fh.read()
     head_start = html.index(">", html.index("<head")) + 1
     head = html[head_start:html.index("</head>")]
-    # On retire le tag GA4, qui remplace volontairement l'ancien snippet UA.
+    # On retire ce que la migration ajoute volontairement : le tag GA4, qui
+    # remplace l'ancien snippet UA, et notre feuille de style.
     head = re.sub(r"<!-- Google Analytics 4 -->.*?gtag\('config'[^<]*</script>", "", head, flags=re.S)
+    head = re.sub(r"<!-- Notre feuille de style.*?-->", "", head, flags=re.S)
+    head = re.sub(r'<link rel="stylesheet" href="[^"]*/css/site\.css"\s*/?>', "", head)
     body = html[html.index(">", html.index("<body")) + 1:html.index("</body>")]
-    return head + body
+    return head + contenu_de_page(body)
 
 
 def main() -> int:

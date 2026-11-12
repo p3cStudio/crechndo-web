@@ -1,41 +1,24 @@
-// Réapplique les marqueurs « page courante » au header mutualisé, AU MOMENT DU BUILD.
-// (Astro exécute ce code pendant `astro build` : zéro JavaScript envoyé au navigateur.)
+// Marque la page courante dans les menus, AU MOMENT DU BUILD.
+// (Astro exécute ce code pendant `astro build` : zéro JavaScript envoyé au
+// navigateur, et le marquage est écrit en dur dans le HTML livré.)
 //
-// Le header est stocké une seule fois, neutre. Chaque page lui réinjecte ici
-// exactement ce que WordPress produisait :
-//   <li>  … current-menu-item page_item page-item-<ID> current_page_item menu-item-<N>
-//   <a>   … aria-current="page"  class="elementor-(sub-)item elementor-item-active …
-//   <li>  … current-menu-ancestor current-menu-parent menu-item-has-children menu-item-<N>
+// On repère les liens par leur href — plus rien à maintenir à la main quand une
+// page est ajoutée ou qu'une entrée de menu change de libellé.
 //
-// Le menu figurant quatre fois dans le header (desktop/mobile × principal/déroulant),
-// les remplacements sont volontairement globaux.
+// Seuls les liens d'une entrée de menu (<li><a …>) sont marqués : le lien du
+// logo, qui pointe lui aussi vers l'accueil, est laissé tranquille.
 //
-// tools/build_fragments.py vérifie à chaque génération que le header ainsi reconstruit
-// est identique, à l'octet près, à celui du site d'origine.
-export function markActiveMenu(html, state) {
-  if (!state || !state.activeIds || state.activeIds.length === 0) return html;
+// Le lien courant reçoit aria-current="page" ; c'est sur cet attribut que la
+// feuille de style s'appuie pour le soulignement du menu bureau et pour le fond
+// coloré dans les panneaux déroulants.
+export function markActiveMenu(html, path) {
+  if (!path) return html;
 
-  const { pageId, activeIds, ancestorIds = [] } = state;
-
-  // Le header contient deux menus WordPress distincts (barre desktop et barre mobile),
-  // chacun rendu deux fois : un même lien porte donc plusieurs identifiants d'item.
-  for (const activeId of activeIds) {
-    html = html.replace(
-      new RegExp(
-        `(<li class="[^"]*?)(menu-item-${activeId}">)(<a [^>]*?)(class="elementor-(?:sub-)?item )`,
-        'g',
-      ),
-      (_m, liPrefix, liEnd, aOpen, cls) =>
-        `${liPrefix}current-menu-item page_item page-item-${pageId} current_page_item ` +
-        `${liEnd}${aOpen}aria-current="page" ${cls}elementor-item-active `,
-    );
-  }
-
-  for (const ancestorId of ancestorIds) {
-    html = html.replace(
-      new RegExp(`(<li class="[^"]*?)(menu-item-has-children menu-item-${ancestorId}")`, 'g'),
-      (_m, liPrefix, rest) => `${liPrefix}current-menu-ancestor current-menu-parent ${rest}`,
-    );
-  }
-  return html;
+  // Le même lien figure dans plusieurs menus (bureau déroulé, bureau replié,
+  // mobile) : le remplacement est volontairement global.
+  const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.replace(
+    new RegExp(`(<li>\\s*<a\\b[^>]*\\shref="${escaped}")`, 'g'),
+    '$1 aria-current="page"',
+  );
 }

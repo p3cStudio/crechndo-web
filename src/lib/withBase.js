@@ -35,3 +35,12 @@ export function withBase(html) {
   }
   return out;
 }
+
+// Variante pour une URL seule (attribut href/src écrit en Astro, pas dans un
+// fragment HTML) : withBase() ne sait traiter que du balisage.
+export function basePath(url) {
+  let base = import.meta.env.BASE_URL;
+  if (base === '/' || base === '') return url;
+  if (!base.endsWith('/')) base += '/';
+  return base + url.replace(/^\//, '');
+}

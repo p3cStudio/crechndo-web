@@ -39,6 +39,29 @@ CONTENT_START = '<div id="content" class="site-content">'
 CONTENT_END = "</div><!-- #content -->"
 PAGE_END = "</div><!-- #page -->"
 
+# Phase 2 : dès qu'un fragment est réécrit à la main, il porte ce marqueur en
+# première ligne et le générateur ne le touche plus. Sans ça, relancer
+# build_fragments.py écraserait le travail de réécriture par le balisage
+# d'origine, sans prévenir.
+MARQUEUR_MANUEL = "<!-- réécrit à la main (phase 2) -->"
+
+
+def est_manuel(chemin: str) -> bool:
+    if not os.path.exists(chemin):
+        return False
+    with open(chemin, encoding="utf-8") as fh:
+        return fh.readline().strip() == MARQUEUR_MANUEL
+
+
+def ecrire(chemin: str, contenu: str) -> bool:
+    """Écrit un fragment, sauf s'il a été repris à la main."""
+    if est_manuel(chemin):
+        print(f"  = {os.path.basename(chemin)} : réécrit à la main, laissé tel quel")
+        return False
+    with open(chemin, "w", encoding="utf-8") as fh:
+        fh.write(contenu)
+    return True
+
 # Le vieux snippet Universal Analytics sert en réalité d'amorce au tag GA4
 # (Google charge gtag.js tout seul derrière). On pose donc GA4 directement :
 # même propriété, mêmes données, sans dépendre de ce pont hérité.
@@ -333,51 +356,32 @@ def main() -> int:
     variants = {p["footer"] for p in parts.values()}
     if len(variants) != 1:
         raise SystemExit(f"footer : {len(variants)} variantes, mutualisation impossible")
-    with open(os.path.join(FRAGMENTS, "footer.html"), "w", encoding="utf-8") as fh:
-        fh.write(variants.pop())
-    print(f"  footer.html mutualisé sur les {len(parts)} pages")
+    if ecrire(os.path.join(FRAGMENTS, "footer.html"), variants.pop()):
+        print(f"  footer.html mutualisé sur les {len(parts)} pages")
 
-    # --- header mutualisé + état du menu ----------------------------------
-    # Les 16 headers ne diffèrent que par les marqueurs « page courante » du menu.
-    # On stocke donc UN header neutre, plus un petit descripteur par page, et c'est
-    # le layout qui réapplique les marqueurs au build (voir src/lib/activeMenu.js).
+    # --- header mutualisé ---------------------------------------------------
+    # Les 16 headers d'origine ne diffèrent que par les marqueurs « page
+    # courante » du menu : on les neutralise, et le header devient unique.
+    # (Depuis la phase 2 le header est réécrit à la main : on se contente alors
+    # de vérifier qu'il reste bien un seul header pour les 16 pages.)
     neutrals = {slug: neutralize_menu(p["header"]) for slug, p in parts.items()}
     distinct = set(neutrals.values())
     if len(distinct) != 1:
-        for slug, n in neutrals.items():
-            with open(os.path.join(FRAGMENTS, f"{slug}-header.html"), "w", encoding="utf-8") as fh:
-                fh.write(n)
         raise SystemExit(f"header : {len(distinct)} variantes une fois le menu neutralisé")
-    with open(os.path.join(FRAGMENTS, "header.html"), "w", encoding="utf-8") as fh:
-        fh.write(distinct.pop())
-    print(f"  header.html mutualisé sur les {len(parts)} pages (menu neutralisé)")
-
-    menu_state = {slug: menu_state_of(p["header"]) for slug, p in parts.items()}
-    with open(os.path.join(ROOT, "src", "lib", "menuState.js"), "w", encoding="utf-8") as fh:
-        fh.write(
-            "// GÉNÉRÉ par tools/build_fragments.py — ne pas éditer à la main.\n"
-            "// Marqueurs « page courante » du menu, réappliqués au header mutualisé\n"
-            "// au moment du build par src/lib/activeMenu.js.\n"
-            "export const MENU_STATE = "
-            + json.dumps(menu_state, ensure_ascii=False, indent=2)
-            + ";\n"
-        )
-    print(f"  menuState.js ({sum(1 for v in menu_state.values() if v['activeIds'])} pages avec un item actif)")
-
-    # Contrôle fort : réappliquer l'état doit redonner le header d'origine, à l'octet près.
-    for slug, p in parts.items():
-        rebuilt = apply_menu_state(neutrals[slug], menu_state[slug])
-        if rebuilt != p["header"]:
-            raise SystemExit(
-                f"{slug}: le header reconstruit depuis le header mutualisé diffère de l'original"
-            )
-    print("  header reconstruit à l'identique sur les 16 pages ✓")
+    chemin_header = os.path.join(FRAGMENTS, "header.html")
+    if ecrire(chemin_header, distinct.pop()):
+        print(f"  header.html mutualisé sur les {len(parts)} pages (menu neutralisé)")
+        # Contrôle fort : réappliquer l'état doit redonner le header d'origine,
+        # à l'octet près. Il n'a plus de sens une fois le header réécrit.
+        for slug, p in parts.items():
+            if apply_menu_state(neutrals[slug], menu_state_of(p["header"])) != p["header"]:
+                raise SystemExit(f"{slug}: header reconstruit différent de l'original")
+        print("  header reconstruit à l'identique sur les 16 pages ✓")
 
     # --- fragments par page ----------------------------------------------
     for slug, p in parts.items():
         for part in ("head", "content", "scripts"):
-            with open(os.path.join(FRAGMENTS, f"{slug}-{part}.html"), "w", encoding="utf-8") as fh:
-                fh.write(p[part])
+            ecrire(os.path.join(FRAGMENTS, f"{slug}-{part}.html"), p[part])
 
     # --- pages .astro -----------------------------------------------------
     for slug, p in parts.items():
@@ -398,8 +402,10 @@ const bodyClass = {json.dumps(p["body_class"], ensure_ascii=False)};
   <Fragment slot="scripts" set:html={{withBase(scripts)}} />
 </BaseLayout>
 """
-        with open(os.path.join(PAGES_DIR, f"{slug}.astro"), "w", encoding="utf-8") as fh:
-            fh.write(astro)
+        chemin = os.path.join(PAGES_DIR, f"{slug}.astro")
+        if not est_manuel(chemin):
+            with open(chemin, "w", encoding="utf-8") as fh:
+                fh.write(astro)
     print(f"  {len(parts)} pages .astro")
 
     # --- contrôle : attributs du <body> identiques ? ----------------------

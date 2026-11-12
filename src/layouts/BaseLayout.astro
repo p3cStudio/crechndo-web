@@ -5,21 +5,25 @@
 // Pour modifier le footer/header partout : éditer src/fragments/header.html
 // ou src/fragments/footer.html — une seule fois.
 //
-// Le header est stocké « neutre » : markActiveMenu() y replace les marqueurs de
-// page courante du menu, au build, à partir de src/lib/menuState.js.
+// La planche d'icônes (SVG) est posée une fois par page ; le balisage s'y réfère
+// avec <use href="#cnd-i-…">. Elle remplace les polices d'icônes d'origine.
 import headerHtml from '../fragments/header.html?raw';
 import footerHtml from '../fragments/footer.html?raw';
-import { withBase } from '../lib/withBase.js';
+import iconsSprite from '../fragments/icons-sprite.html?raw';
+import { withBase, basePath } from '../lib/withBase.js';
 import { markActiveMenu } from '../lib/activeMenu.js';
-import { MENU_STATE } from '../lib/menuState.js';
 
 const { bodyClass = '', slug } = Astro.props;
-const header = markActiveMenu(headerHtml, MENU_STATE[slug]);
+const path = slug === 'index' ? '/' : `/${slug}/`;
+const header = markActiveMenu(headerHtml, path);
 ---
 <!doctype html>
 <html lang="fr-FR" prefix="og: https://ogp.me/ns#">
   <head>
     <slot name="head" />
+    <!-- Notre feuille de style vient après celles héritées de WordPress,
+         qui disparaîtront à la fin de la phase 2. -->
+    <link rel="stylesheet" href={basePath('/css/site.css')} />
   </head>
   <body
     data-rsssl="1"
@@ -27,9 +31,11 @@ const header = markActiveMenu(headerHtml, MENU_STATE[slug]);
     itemscope="itemscope"
     class={bodyClass}
   >
+    <Fragment set:html={iconsSprite} />
     <Fragment set:html={withBase(header)} />
     <slot />
     <Fragment set:html={withBase(footerHtml)} />
     <slot name="scripts" />
+    <script src={basePath('/js/site.js')} defer></script>
   </body>
 </html>

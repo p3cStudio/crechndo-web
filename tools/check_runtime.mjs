@@ -17,7 +17,7 @@ const PATHS = [
 ];
 
 // Domaines tiers dont on ne contrôle pas la disponibilité depuis ici.
-const THIRD_PARTY = /google\.com\/maps|googletagmanager|google-analytics|maps\.google|gstatic|doubleclick/;
+const THIRD_PARTY = /google\.com\/maps|fonts\.googleapis|fonts\.gstatic|googletagmanager|google-analytics|maps\.google|gstatic|doubleclick/;
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext();

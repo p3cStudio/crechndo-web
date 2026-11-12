@@ -14,16 +14,34 @@ import { chromium } from 'playwright';
 const ORIGIN = (process.env.ORIGIN ?? 'https://crechndo.org').replace(/\/$/, '');
 const LOCAL = (process.env.LOCAL ?? 'http://localhost:4321').replace(/\/$/, '');
 
+// Le header a été réécrit en phase 2 : ses sélecteurs diffèrent d'un site à
+// l'autre. Les sondes qui le visent reçoivent donc un jeu de sélecteurs par site.
+const SELECTEURS = {
+  origine: {
+    parentSousMenu: 'nav.elementor-nav-menu--main li.menu-item-has-children',
+    sousMenu: 'ul.sub-menu',
+    burger: '.elementor-menu-toggle',
+    panneau: 'nav.elementor-nav-menu--dropdown',
+  },
+  genere: {
+    parentSousMenu: '.cnd-menu-bureau__liste li:has(> .cnd-sous-menu)',
+    sousMenu: '.cnd-sous-menu',
+    burger: '.cnd-burger',
+    panneau: '.cnd-panneau',
+  },
+};
+
 const PROBES = [
   {
-    // SmartMenus est configuré ici en « ouverture au clic », pas au survol.
+    // SmartMenus était configuré en « ouverture au clic », pas au survol :
+    // la réécriture reprend ce comportement.
     name: 'sous-menu du header au clic (desktop)',
     viewport: { width: 1440, height: 900 },
     path: '/',
-    async run(page) {
+    async run(page, sel) {
       await page.waitForTimeout(1200);
-      const parent = page.locator('nav.elementor-nav-menu--main li.menu-item-has-children').first();
-      const sub = parent.locator('ul.sub-menu').first();
+      const parent = page.locator(sel.parentSousMenu).first();
+      const sub = parent.locator(sel.sousMenu).first();
       const before = await sub.isVisible();
       await parent.locator('> a').click();
       await page.waitForTimeout(800);
@@ -34,18 +52,18 @@ const PROBES = [
     name: 'menu burger (mobile)',
     viewport: { width: 375, height: 812 },
     path: '/',
-    async run(page) {
+    async run(page, sel) {
       // Le header contient deux barres (desktop et mobile) : on prend le bouton
       // réellement affiché à cette largeur.
       await page.waitForTimeout(1200);
-      const toggles = await page.$$eval('.elementor-menu-toggle',
+      const toggles = await page.$$eval(sel.burger,
         (els) => els.map((e) => e.offsetParent !== null));
-      const toggle = page.locator('.elementor-menu-toggle').nth(toggles.indexOf(true));
-      const menus = page.locator('nav.elementor-nav-menu--dropdown');
-      const before = await menus.evaluateAll((els) => els.map((e) => e.offsetParent !== null));
+      const toggle = page.locator(sel.burger).nth(toggles.indexOf(true));
+      const menus = page.locator(sel.panneau);
+      const before = await menus.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height > 0));
       await toggle.click();
       await page.waitForTimeout(800);
-      const after = await menus.evaluateAll((els) => els.map((e) => e.offsetParent !== null));
+      const after = await menus.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height > 0));
       return { avant: before, apres: after };
     },
   },
@@ -98,12 +116,12 @@ const PROBES = [
 
 const browser = await chromium.launch();
 
-async function probe(base, p) {
+async function probe(base, p, jeu) {
   const ctx = await browser.newContext({ viewport: p.viewport });
   const page = await ctx.newPage();
   try {
     await page.goto(base + p.path, { waitUntil: 'load', timeout: 60000 });
-    return await p.run(page);
+    return await p.run(page, SELECTEURS[jeu]);
   } catch (e) {
     return { erreur: e.message.split('\n')[0] };
   } finally {
@@ -113,8 +131,8 @@ async function probe(base, p) {
 
 let ko = 0;
 for (const p of PROBES) {
-  const a = JSON.stringify(await probe(ORIGIN, p));
-  const b = JSON.stringify(await probe(LOCAL, p));
+  const a = JSON.stringify(await probe(ORIGIN, p, 'origine'));
+  const b = JSON.stringify(await probe(LOCAL, p, 'genere'));
   const same = a === b;
   if (!same) ko++;
   console.log(`${same ? '✓' : '✗'} ${p.name}`);

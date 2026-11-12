@@ -1,0 +1,490 @@
+/* ==========================================================================
+   Crèch'n'do — feuille de style du site
+   --------------------------------------------------------------------------
+   Écrite à la main pendant la phase 2, pour remplacer Astra + Elementor.
+   Elle est chargée APRÈS les feuilles héritées de WordPress, encore présentes
+   le temps de la migration : les blocs déjà réécrits n'ont plus aucune classe
+   Elementor, donc aucune règle de l'ancien CSS ne les atteint.
+
+   Tout est préfixé `cnd-` : rien ici ne peut toucher les parties du site qui
+   n'ont pas encore été réécrites.
+   ========================================================================== */
+
+:root {
+  --cnd-turquoise: #63c0bf;   /* titres, barre de navigation */
+  --cnd-corail: #ef7f73;      /* liens, barre du haut, survol */
+  --cnd-violet: #a581b9;      /* boutons */
+  --cnd-texte: #999;          /* texte courant */
+  --cnd-blanc: #fff;
+
+  --cnd-police-titre: "fun-kids", sans-serif;
+  --cnd-police-texte: Arial, sans-serif;
+}
+
+/* ==========================================================================
+   Bouton
+   ========================================================================== */
+.cnd-bouton {
+  display: inline-block;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 19px;
+  background-color: var(--cnd-violet);
+  color: var(--cnd-blanc);
+  font-family: var(--cnd-police-texte);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Les marges intérieures du bouton changent aux points de rupture du thème
+   d'origine (921 px et 544 px). C'est ce qui décide si « Pré-Inscription »
+   tient sur une ligne ou passe sur deux, donc la hauteur de la barre du haut. */
+/* Le thème d'origine colore encore tous les liens ; `a.cnd-bouton` est juste
+   assez précis pour reprendre la main. À supprimer avec lui. */
+a.cnd-bouton {
+  color: var(--cnd-blanc);
+}
+
+@media (max-width: 921px) {
+  .cnd-bouton { padding: 14px 28px; }
+}
+
+@media (max-width: 544px) {
+  .cnd-bouton { padding: 12px 24px; }
+}
+
+/* ==========================================================================
+   En-tête
+   --------------------------------------------------------------------------
+   Trois configurations, reprises telles quelles du site d'origine :
+
+     ≤ 767 px    barre du haut masquée · logo · menu mobile (burger)
+     768–1024 px barre du haut · logo · menu bureau replié en burger
+     ≥ 1025 px   barre du haut · logo · menu bureau déroulé
+
+   Les deux menus n'ont pas le même contenu : celui du mobile comporte des
+   entrées supplémentaires (Informations, Facebook) et des libellés différents.
+   C'était déjà le cas sous WordPress ; on le conserve.
+   ========================================================================== */
+.cnd-entete {
+  font-family: var(--cnd-police-texte);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+.cnd-entete *,
+.cnd-entete *::before,
+.cnd-entete *::after {
+  box-sizing: border-box;
+}
+
+.cnd-entete a {
+  text-decoration: none;
+}
+
+.cnd-entete ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cnd-entete p {
+  margin: 0;
+}
+
+/* --- barre du haut ------------------------------------------------------- */
+.cnd-barre-haut {
+  padding: 6px;
+  background-color: var(--cnd-corail);
+}
+
+.cnd-barre-haut__contenu {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Chaque bloc est une colonne étirée sur la hauteur de la barre ; son contenu
+   est centré verticalement par un élément interne de pleine largeur. Cette
+   construction en deux niveaux reproduit celle d'Elementor, et surtout son
+   comportement : le bouton se dimensionne sur son texte et passe sur deux
+   lignes quand la colonne devient trop étroite, ni avant ni après. */
+.cnd-barre-haut__bloc {
+  display: flex;
+  align-items: center;
+}
+
+.cnd-barre-haut__interne {
+  width: 100%;
+}
+
+.cnd-barre-haut__accroche {
+  width: 25%;
+  padding-left: 50px;
+  color: var(--cnd-blanc);
+  font-weight: 600;
+}
+
+.cnd-barre-haut__tel {
+  width: 25%;
+  color: var(--cnd-blanc);
+}
+
+.cnd-barre-haut__tel .cnd-barre-haut__interne {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cnd-barre-haut__tel .cnd-icone {
+  width: 1.25em;
+  font-size: 14px;
+}
+
+.cnd-barre-haut__numero {
+  padding-left: 5px;
+  font-family: var(--cnd-police-titre);
+  font-weight: 400;
+}
+
+.cnd-barre-haut__reseau {
+  width: 30%;
+}
+
+.cnd-barre-haut__reseau .cnd-barre-haut__interne {
+  text-align: center;
+}
+
+/* Le lien ne contient qu'un SVG en bloc : sa ligne de base est donc son bord
+   inférieur, comme celle de l'ancienne icône de police. Sans ça il se décalerait
+   d'un peu plus d'un pixel vers le bas. */
+.cnd-barre-haut__reseau a {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  color: var(--cnd-blanc);
+  font-size: 20px;
+  line-height: 1;
+  text-align: center;
+}
+
+.cnd-barre-haut__reseau a .cnd-icone {
+  display: block;
+  margin: 0 auto;
+}
+
+.cnd-barre-haut__cta {
+  width: 20%;
+  padding-right: 50px;
+}
+
+.cnd-barre-haut__cta .cnd-barre-haut__interne {
+  text-align: right;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .cnd-barre-haut__accroche { width: 33%; }
+  .cnd-barre-haut__reseau { width: 17%; }
+  .cnd-barre-haut__cta { width: 24%; }
+}
+
+@media (max-width: 767px) {
+  .cnd-barre-haut { display: none; }
+}
+
+/* --- barre du logo ------------------------------------------------------- */
+.cnd-barre-logo__contenu {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cnd-barre-logo__col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33.333%;
+  min-height: 1px;
+  padding: 10px;
+}
+
+.cnd-barre-logo__col--vide {
+  width: 66.666%;
+}
+
+.cnd-barre-logo img {
+  display: block;
+  width: 360px;
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  .cnd-barre-logo__col { width: 100%; }
+  .cnd-barre-logo__col--vide { display: none; }
+}
+
+/* --- menus : fond commun ------------------------------------------------- */
+.cnd-menu-bureau,
+.cnd-menu-mobile {
+  background-color: var(--cnd-turquoise);
+}
+
+/* --- menu bureau (≥ 1025 px) --------------------------------------------- */
+/* `.cnd-entete ul` remet déjà les marges à zéro : il faut être plus précis
+   qu'elle pour que le centrage par marges automatiques s'applique. */
+.cnd-entete .cnd-menu-bureau__liste {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+
+
+.cnd-menu-bureau__liste > li {
+  display: flex;
+  position: relative;
+}
+
+/* Préfixé pour passer devant la règle de liens du thème d'origine. */
+.cnd-entete .cnd-menu-bureau__lien {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  position: relative;
+  padding: 13px 17px;
+  color: var(--cnd-blanc);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  transition: color 0.4s;
+}
+
+/* Soulignement qui apparaît au survol et sur la page courante. */
+.cnd-entete .cnd-menu-bureau__lien::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  background-color: var(--cnd-corail);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.cnd-entete .cnd-menu-bureau__lien:hover::after,
+.cnd-entete .cnd-menu-bureau__lien:focus::after,
+.cnd-entete .cnd-menu-bureau__lien[aria-current="page"]::after {
+  opacity: 1;
+}
+
+/* La flèche élargit la zone cliquable de 10 px en haut et en bas, puis reprend
+   ces 10 px en marge négative : la hauteur de la barre n'en est pas affectée. */
+.cnd-fleche {
+  display: flex;
+  align-items: center;
+  margin: -10px 0;
+  padding: 10px 0 10px 10px;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+/* sous-menus du bureau */
+.cnd-sous-menu {
+  display: none;
+  position: absolute;
+  z-index: 3;
+  top: 100%;
+  left: 0;
+  min-width: 130px;
+  background-color: var(--cnd-blanc);
+}
+
+.cnd-menu-bureau__liste > li.cnd-ouvert > .cnd-sous-menu {
+  display: block;
+}
+
+.cnd-sous-menu a {
+  display: flex;
+  align-items: center;
+  padding: 13px 20px;
+  border-left: 8px solid transparent;
+  color: var(--cnd-texte);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+.cnd-sous-menu a:hover,
+.cnd-sous-menu a:focus,
+.cnd-sous-menu a[aria-current="page"] {
+  background-color: var(--cnd-corail);
+  color: var(--cnd-blanc);
+}
+
+/* --- bouton burger ------------------------------------------------------- */
+/* Sélecteur volontairement plus précis que `.cnd-burger` : tant que la feuille
+   d'Elementor est là, sa règle `.elementor-kit-10 button` repeindrait le bouton
+   en violet. Ce préfixe disparaîtra avec elle. */
+.cnd-entete .cnd-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 33px;
+  height: 33px;
+  margin: 0 auto;
+  padding: 5.5px;
+  border: none;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.05);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Les deux menus n'ont pas la même couleur de burger : gris pour le menu
+   bureau replié, blanc pour le menu mobile. C'était déjà le cas sous WordPress,
+   où il s'agissait de deux widgets réglés séparément. */
+.cnd-menu-bureau .cnd-burger { color: var(--cnd-texte); }
+.cnd-menu-mobile .cnd-burger { color: var(--cnd-blanc); }
+
+.cnd-burger .cnd-icone--fermer { display: none; }
+.cnd-burger[aria-expanded="true"] .cnd-icone--ouvrir { display: none; }
+.cnd-burger[aria-expanded="true"] .cnd-icone--fermer { display: block; }
+
+/* --- panneau déroulant (burger du bureau et du mobile) ------------------- */
+/* Le panneau reste dans le flux même fermé : sa marge haute de 10 px fait
+   partie de la hauteur de la barre, exactement comme sur le site d'origine.
+   On le replie donc par la hauteur, pas par display:none. */
+.cnd-panneau {
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  margin-top: 10px;
+  background-color: var(--cnd-blanc);
+}
+
+.cnd-panneau.cnd-ouvert {
+  height: auto;
+  overflow: visible;
+}
+
+.cnd-panneau a {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  color: var(--cnd-texte);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 20px;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+.cnd-panneau a:hover,
+.cnd-panneau a:focus,
+.cnd-panneau a[aria-current="page"] {
+  background-color: var(--cnd-corail);
+  color: var(--cnd-blanc);
+}
+
+.cnd-panneau .cnd-sous-menu {
+  display: none;
+  position: static;
+  min-width: 0;
+}
+
+.cnd-panneau li.cnd-ouvert > .cnd-sous-menu { display: block; }
+
+/* --- aiguillage entre les trois configurations --------------------------- */
+/* Conteneur volontairement minimal : le centrage de la liste vient de ses
+   marges automatiques. Toute propriété de plus (wrap, justify-content…) décale
+   les libellés de quelques centièmes de pixel et se voit au diff. */
+.cnd-menu-bureau__contenu {
+  display: flex;
+}
+
+.cnd-menu-mobile__contenu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+/* Jusqu'à 1024 px, le menu bureau se replie derrière un burger. */
+@media (max-width: 1024px) {
+  .cnd-entete .cnd-menu-bureau__liste { display: none; }
+  .cnd-menu-bureau__contenu { flex-wrap: wrap; align-items: center; }
+  .cnd-menu-bureau .cnd-burger { display: flex; }
+  .cnd-menu-bureau .cnd-panneau a { font-family: var(--cnd-police-texte); }
+}
+
+/* Au-delà de 1024 px le menu bureau est déroulé : le panneau disparaît
+   complètement du flux, sa marge haute comprise. */
+@media (min-width: 1025px) {
+  .cnd-menu-bureau .cnd-panneau { display: none; }
+}
+
+/* Le menu mobile ne sert qu'en dessous de 768 px ; au-dessus c'est le menu
+   bureau (replié ou non) qui s'affiche. */
+.cnd-menu-mobile { display: none; }
+.cnd-menu-mobile .cnd-burger { display: flex; }
+.cnd-menu-mobile .cnd-panneau a { font-family: var(--cnd-police-titre); }
+
+@media (max-width: 767px) {
+  .cnd-menu-bureau { display: none; }
+  .cnd-menu-mobile { display: block; }
+}
+
+/* --- icônes -------------------------------------------------------------- */
+/* Les icônes sont des SVG posés dans le flux du texte, à la place des glyphes
+   des polices d'icônes : même hauteur (1 em de boîte) et même alignement sur
+   la ligne de base. */
+.cnd-icone {
+  display: inline-block;
+  fill: currentColor;
+}
+
+/* Les dimensions de chaque icône sont posées par la planche elle-même
+   (bloc <style> généré par tools/icons_to_svg.py). */
+
+/* La planche d'icônes ne doit rien occuper dans la page. */
+.cnd-planche-icones {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* --- lien d'évitement ---------------------------------------------------- */
+.cnd-lien-evitement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cnd-lien-evitement:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
