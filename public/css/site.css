@@ -16,6 +16,8 @@
   --cnd-violet: #a581b9;      /* boutons */
   --cnd-texte: #999;          /* texte courant */
   --cnd-blanc: #fff;
+  --cnd-texte-lien: #777;     /* liens hors navigation */
+  --cnd-texte-survol: #3a3a3a;/* survol de ces liens */
 
   --cnd-police-titre: "fun-kids", sans-serif;
   --cnd-police-texte: Arial, sans-serif;
@@ -177,7 +179,11 @@ a.cnd-bouton {
   margin: 0 auto;
 }
 
+/* Seul bloc de la barre dont le contenu n'est pas centré verticalement : le
+   bouton reste collé en haut. Cela ne se voit qu'entre 768 et 1300 px, là où
+   l'accroche passe sur deux lignes et rend la barre plus haute que le bouton. */
 .cnd-barre-haut__cta {
+  align-items: flex-start;
   width: 20%;
   padding-right: 50px;
 }
@@ -487,4 +493,284 @@ a.cnd-bouton {
   margin: 0;
   overflow: visible;
   clip: auto;
+}
+
+/* ==========================================================================
+   Pied de page
+   --------------------------------------------------------------------------
+   Trois bandeaux, dont deux s'excluent selon la largeur :
+
+     .cnd-pied-haut           les cinq colonnes, turquoise     ≥ 768 px
+     .cnd-pied-bas            mentions + signature, corail     ≥ 1025 px
+     .cnd-pied-bas--compact   signature seule, corail          ≤ 1024 px
+
+   La hauteur de ligne est posée en `em` et non en nombre : elle devient une
+   longueur, héritée telle quelle par les textes de 11 et 12 px. C'est ce que
+   faisait le thème d'origine, et c'est ce qui donne aux listes leurs lignes
+   de 24,75 px (22,572 px en dessous de 921 px, où la taille de base change).
+   ========================================================================== */
+.cnd-pied {
+  color: var(--cnd-texte);
+  font-family: var(--cnd-police-texte);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65em;
+}
+
+.cnd-pied *,
+.cnd-pied *::before,
+.cnd-pied *::after {
+  box-sizing: border-box;
+}
+
+.cnd-pied a {
+  text-decoration: none;
+}
+
+.cnd-pied ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- les cinq colonnes --------------------------------------------------- */
+.cnd-pied-haut {
+  padding: 20px 10px;
+  background-color: var(--cnd-turquoise);
+}
+
+.cnd-pied-haut__contenu {
+  display: flex;
+}
+
+/* Colonne et contenu sont deux éléments distincts, comme sous Elementor : la
+   colonne porte la largeur, le contenu les marges. La colonne de marque reprend
+   15 % de sa propre largeur en marge droite — un pourcentage, donc, qu'un
+   simple `padding` sur la colonne ne saurait pas reproduire. */
+.cnd-pied-col {
+  display: flex;
+  width: 20%;
+}
+
+.cnd-pied-col__interne {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+}
+
+/* 20 px entre deux blocs d'une même colonne, comme Elementor les posait.
+   Préfixé par `.cnd-pied` pour rester devant les règles de marge des titres
+   ci-dessous, qui ont la même précision. */
+.cnd-pied .cnd-pied-col__interne > *:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.cnd-pied-col--marque > .cnd-pied-col__interne {
+  margin-right: 80px;
+}
+
+/* --- colonne de marque : logo et coordonnées ----------------------------- */
+.cnd-pied-logo {
+  background-color: var(--cnd-blanc);
+  text-align: center;
+}
+
+.cnd-pied-logo img {
+  display: inline-block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.cnd-pied-coord li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* L'icône occupe la boîte de l'ancien glyphe : 1,25 em de large pour 1 em de
+   haut, le tracé centré dedans. Elle ne se comprime pas : l'ancienne icône de
+   police ne le pouvait pas non plus, son glyphe faisant toute la largeur de la
+   boîte. Sans ça, l'adresse gagne une ligne vers 1025 px, là où la colonne est
+   au plus étroit. */
+.cnd-pied-coord__icone {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  width: 1.25em;
+  font-size: 18px;
+  /* Même couleur que le fond : l'icône est invisible. C'était déjà le cas sur
+     le site d'origine, où la liste héritait de la couleur primaire du thème. */
+  color: var(--cnd-turquoise);
+}
+
+.cnd-pied-coord__icone .cnd-icone {
+  display: block;
+}
+
+.cnd-pied-coord__texte {
+  padding-left: 5px;
+  color: var(--cnd-blanc);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* --- titres de colonne --------------------------------------------------- */
+/* Préfixés pour passer devant les règles de titres et de liens du thème
+   d'origine (`.elementor-kit-10 h2`, `.elementor-kit-10 a`), encore chargé.
+   Ce préfixe disparaîtra avec lui. */
+.cnd-pied .cnd-pied-titre {
+  margin: 0;
+  color: var(--cnd-blanc);
+  font-family: var(--cnd-police-titre);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* --- listes de la zone turquoise ---------------------------------------- */
+.cnd-pied-liste li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Préfixé pour passer devant la règle de liens du thème d'origine
+   (`.elementor-kit-10 a`), encore chargé. À simplifier avec lui. */
+.cnd-pied .cnd-pied-liste a,
+.cnd-pied .cnd-pied-liste span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cnd-blanc);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Le lien occupe toute la largeur de son élément de liste : la zone cliquable
+   ne se limite pas au libellé. */
+.cnd-pied-liste a {
+  width: 100%;
+}
+
+/* --- bouton de pré-inscription ------------------------------------------ */
+.cnd-pied-cta {
+  text-align: center;
+}
+
+/* --- icône Facebook ------------------------------------------------------ */
+/* Le lien est un bloc en ligne de 20 px de côté, dont le SVG, posé en bloc,
+   occupe le centre : la ligne de base du lien est donc son bord inférieur,
+   comme celle de l'ancienne icône de police. */
+.cnd-pied-reseau {
+  text-align: center;
+}
+
+.cnd-pied .cnd-pied-reseau a {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  color: var(--cnd-blanc);
+  font-size: 20px;
+  line-height: 1;
+  text-align: center;
+}
+
+.cnd-pied-reseau a .cnd-icone {
+  display: block;
+  margin: 0 auto;
+}
+
+/* --- bandeau du bas ------------------------------------------------------ */
+.cnd-pied-bas {
+  padding: 10px;
+  border-top: 1px solid rgb(255 255 255 / 0.19);
+  background-color: var(--cnd-corail);
+}
+
+.cnd-pied-bas__contenu {
+  display: flex;
+  align-items: center;
+}
+
+.cnd-pied-bas__interne {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+}
+
+.cnd-pied .cnd-pied-bas__interne > *:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.cnd-pied-mentions {
+  margin: 0;
+  color: var(--cnd-blanc);
+  font-family: var(--cnd-police-texte);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.3em;
+  text-align: center;
+}
+
+/* La signature débordait déjà de son bloc sur le site d'origine : un retrait
+   de 14 px sur les quatre côtés remonte le texte au-dessus de sa propre boîte.
+   On le garde tel quel — c'est ce qui donne au bandeau sa hauteur exacte. */
+.cnd-pied-signature {
+  font-size: 11px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.cnd-pied-signature__interne {
+  margin: -14px;
+}
+
+.cnd-pied-signature p {
+  margin: 0 0 1.75em;
+  color: var(--cnd-blanc);
+}
+
+.cnd-pied .cnd-pied-signature a {
+  color: var(--cnd-texte-lien);
+  transition: color 0.3s;
+}
+
+.cnd-pied .cnd-pied-signature a:hover,
+.cnd-pied .cnd-pied-signature a:focus {
+  color: var(--cnd-texte-survol);
+}
+
+/* --- aiguillage entre les trois bandeaux -------------------------------- */
+.cnd-pied-bas--compact {
+  display: none;
+  padding: 10px 20px;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .cnd-pied-col--marque { width: 35%; }
+  .cnd-pied-col--marque > .cnd-pied-col__interne { margin-right: 15%; }
+}
+
+/* Jusqu'à 1024 px les colonnes passent à la ligne : la colonne de marque en
+   occupe 35 %, les quatre autres 20 % — soit 115 %, donc la dernière descend. */
+@media (max-width: 1024px) {
+  .cnd-pied-haut { padding: 50px 20px; }
+  .cnd-pied-haut__contenu { flex-wrap: wrap; }
+  .cnd-pied-bas { display: none; }
+  .cnd-pied-bas--compact { display: block; }
+}
+
+@media (max-width: 767px) {
+  .cnd-pied-haut { display: none; }
+  .cnd-pied-bas--compact { padding: 30px 20px 20px; }
+  .cnd-pied-bas__interne { padding: 0; }
 }

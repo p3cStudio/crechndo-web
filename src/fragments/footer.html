@@ -1,197 +1,135 @@
+<!-- réécrit à la main (phase 2) -->
+<!--
+  Pied de page du site — HTML pur, sans Astra ni Elementor.
+  Styles : public/css/site.css (section « Pied de page »)
 
-		<footer data-elementor-type="footer" data-elementor-id="88" class="elementor elementor-88 elementor-location-footer" data-elementor-post-type="elementor_library">
-					<footer class="elementor-section elementor-top-section elementor-element elementor-element-6b2eddd9 elementor-section-full_width elementor-hidden-mobile elementor-section-height-default elementor-section-height-default" data-id="6b2eddd9" data-element_type="section" data-e-type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
-						<div class="elementor-container elementor-column-gap-default">
-					<div class="elementor-column elementor-col-20 elementor-top-column elementor-element elementor-element-54eaa521" data-id="54eaa521" data-element_type="column" data-e-type="column" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-63736b9 elementor-widget elementor-widget-theme-site-logo elementor-widget-image" data-id="63736b9" data-element_type="widget" data-e-type="widget" data-widget_type="theme-site-logo.default">
-				<div class="elementor-widget-container">
-											<a href="/">
-			<img width="300" height="100" src="/img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1-256x85.png" class="attachment-medium size-medium wp-image-758" alt="logo-crech-n-do-saint-laurent-blangy-creche" srcset="/img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1-300x100.png 300w, /img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1-256x85.png 256w, /img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1.png 360w" sizes="(max-width: 300px) 100vw, 300px" />				</a>
-											</div>
-				</div>
-				<div class="elementor-element elementor-element-18a024e elementor-align-center elementor-widget__width-inherit elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="18a024e" data-element_type="widget" data-e-type="widget" data-widget_type="icon-list.default">
-				<div class="elementor-widget-container">
-							<ul class="elementor-icon-list-items">
-							<li class="elementor-icon-list-item">
-											<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-map-marker-alt"></i>						</span>
-										<span class="elementor-icon-list-text">54 rue Henri Barbusse <br>62223 Saint Laurent Blangy</span>
-									</li>
-								<li class="elementor-icon-list-item">
-											<span class="elementor-icon-list-icon">
-							<i aria-hidden="true" class="fas fa-phone-alt"></i>						</span>
-										<span class="elementor-icon-list-text">06 95 17 63 38</span>
-									</li>
-						</ul>
-						</div>
-				</div>
-					</div>
-		</div>
-				<div class="elementor-column elementor-col-20 elementor-top-column elementor-element elementor-element-2a5189e9" data-id="2a5189e9" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-51a31f5c elementor-widget elementor-widget-heading" data-id="51a31f5c" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h2 class="elementor-heading-title elementor-size-default">Informations</h2>				</div>
-				</div>
-				<div class="elementor-element elementor-element-b97c1bb elementor-align-center elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="b97c1bb" data-element_type="widget" data-e-type="widget" data-widget_type="icon-list.default">
-				<div class="elementor-widget-container">
-							<ul class="elementor-icon-list-items">
-							<li class="elementor-icon-list-item">
-											<a href="/">
+  Trois bandeaux, dont deux s'excluent selon la largeur, exactement comme sur
+  le site d'origine :
 
-											<span class="elementor-icon-list-text">Accueil</span>
-											</a>
-									</li>
-								<li class="elementor-icon-list-item">
-											<a href="/presentation/">
+    .cnd-pied-haut              les cinq colonnes, turquoise      ≥ 768 px
+    .cnd-pied-bas               mentions + signature, corail      ≥ 1025 px
+    .cnd-pied-bas--compact      signature seule, corail           ≤ 1024 px
 
-											<span class="elementor-icon-list-text">Qui sommes-nous ?</span>
-											</a>
-									</li>
-								<li class="elementor-icon-list-item">
-											<a href="/plan-du-site/">
+  En dessous de 768 px il ne reste donc que la signature.
 
-											<span class="elementor-icon-list-text">Plan du site</span>
-											</a>
-									</li>
-								<li class="elementor-icon-list-item">
-											<a href="/mentions-legales/">
+  Les deux signatures ne sont pas tout à fait identiques (deux espaces
+  insécables d'un côté, une espace ordinaire de l'autre) : c'était déjà le cas
+  sous WordPress, où il s'agissait de deux blocs saisis séparément.
+-->
+      <footer class="cnd-pied">
 
-											<span class="elementor-icon-list-text">Mentions légales</span>
-											</a>
-									</li>
-								<li class="elementor-icon-list-item">
-											<a href="/nos-partenaires/">
+        <!-- les cinq colonnes (≥ 768 px) -->
+        <div class="cnd-pied-haut">
+          <div class="cnd-pied-haut__contenu">
 
-											<span class="elementor-icon-list-text">Nos partenaires</span>
-											</a>
-									</li>
-								<li class="elementor-icon-list-item">
-											<a href="/on-parle-de-nous/">
+            <div class="cnd-pied-col cnd-pied-col--marque">
+              <div class="cnd-pied-col__interne">
+                <div class="cnd-pied-logo">
+                  <a href="/">
+                    <img width="300" height="100"
+                         src="/img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1-256x85.png"
+                         srcset="/img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1-300x100.png 300w, /img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1-256x85.png 256w, /img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1.png 360w"
+                         sizes="(max-width: 300px) 100vw, 300px"
+                         alt="logo-crech-n-do-saint-laurent-blangy-creche" />
+                  </a>
+                </div>
 
-											<span class="elementor-icon-list-text">On parle de nous !</span>
-											</a>
-									</li>
-						</ul>
-						</div>
-				</div>
-					</div>
-		</div>
-				<div class="elementor-column elementor-col-20 elementor-top-column elementor-element elementor-element-2824c06e" data-id="2824c06e" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-7cb67701 elementor-widget elementor-widget-heading" data-id="7cb67701" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h2 class="elementor-heading-title elementor-size-default">Mots clés</h2>				</div>
-				</div>
-				<div class="elementor-element elementor-element-0e7955e elementor-align-center elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="0e7955e" data-element_type="widget" data-e-type="widget" data-widget_type="icon-list.default">
-				<div class="elementor-widget-container">
-							<ul class="elementor-icon-list-items">
-							<li class="elementor-icon-list-item">
-										<span class="elementor-icon-list-text">Micro crèche</span>
-									</li>
-								<li class="elementor-icon-list-item">
-										<span class="elementor-icon-list-text">Crèche bio</span>
-									</li>
-								<li class="elementor-icon-list-item">
-										<span class="elementor-icon-list-text">Ecologique</span>
-									</li>
-								<li class="elementor-icon-list-item">
-										<span class="elementor-icon-list-text">Garde d'enfants</span>
-									</li>
-								<li class="elementor-icon-list-item">
-										<span class="elementor-icon-list-text">Crèche responsable</span>
-									</li>
-						</ul>
-						</div>
-				</div>
-					</div>
-		</div>
-				<div class="elementor-column elementor-col-20 elementor-top-column elementor-element elementor-element-3d27a0c2" data-id="3d27a0c2" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-40e19757 elementor-widget elementor-widget-heading" data-id="40e19757" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h2 class="elementor-heading-title elementor-size-default">Parents</h2>				</div>
-				</div>
-				<div class="elementor-element elementor-element-949a530 elementor-align-center elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="949a530" data-element_type="widget" data-e-type="widget" data-widget_type="icon-list.default">
-				<div class="elementor-widget-container">
-							<ul class="elementor-icon-list-items">
-							<li class="elementor-icon-list-item">
-											<a href="/l-accueil-de-votre-enfant-de-a-a-z/">
+                <ul class="cnd-pied-coord">
+                  <li>
+                    <span class="cnd-pied-coord__icone"><svg class="cnd-icone cnd-icone--map-marker" aria-hidden="true"><use href="#cnd-i-map-marker" /></svg></span>
+                    <span class="cnd-pied-coord__texte">54 rue Henri Barbusse <br>62223 Saint Laurent Blangy</span>
+                  </li>
+                  <li>
+                    <span class="cnd-pied-coord__icone"><svg class="cnd-icone cnd-icone--phone" aria-hidden="true"><use href="#cnd-i-phone" /></svg></span>
+                    <span class="cnd-pied-coord__texte">06 95 17 63 38</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
-											<span class="elementor-icon-list-text">L' Accueil de votre enfant de A à Z</span>
-											</a>
-									</li>
-								<li class="elementor-icon-list-item">
-											<a href="/la-journee-de-votre-enfant/">
+            <div class="cnd-pied-col">
+              <div class="cnd-pied-col__interne">
+                <h2 class="cnd-pied-titre">Informations</h2>
+                <ul class="cnd-pied-liste">
+                  <li><a href="/">Accueil</a></li>
+                  <li><a href="/presentation/">Qui sommes-nous ?</a></li>
+                  <li><a href="/plan-du-site/">Plan du site</a></li>
+                  <li><a href="/mentions-legales/">Mentions légales</a></li>
+                  <li><a href="/nos-partenaires/">Nos partenaires</a></li>
+                  <li><a href="/on-parle-de-nous/">On parle de nous !</a></li>
+                </ul>
+              </div>
+            </div>
 
-											<span class="elementor-icon-list-text">La journée de votre enfant</span>
-											</a>
-									</li>
-						</ul>
-						</div>
-				</div>
-				<div class="elementor-element elementor-element-701911f elementor-button-info elementor-align-center elementor-widget elementor-widget-button" data-id="701911f" data-element_type="widget" data-e-type="widget" data-widget_type="button.default">
-				<div class="elementor-widget-container">
-									<div class="elementor-button-wrapper">
-					<a class="elementor-button elementor-button-link elementor-size-md" href="http://inscription.crechndo.org/preinscription" target="_blank">
-						<span class="elementor-button-content-wrapper">
-									<span class="elementor-button-text">Pré-Inscription</span>
-					</span>
-					</a>
-				</div>
-								</div>
-				</div>
-					</div>
-		</div>
-				<div class="elementor-column elementor-col-20 elementor-top-column elementor-element elementor-element-f7247cb" data-id="f7247cb" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-6dfd867 elementor-widget elementor-widget-heading" data-id="6dfd867" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h2 class="elementor-heading-title elementor-size-default">Suivez-nous</h2>				</div>
-				</div>
-				<div class="elementor-element elementor-element-ee3e898 elementor-view-default elementor-widget elementor-widget-icon" data-id="ee3e898" data-element_type="widget" data-e-type="widget" data-widget_type="icon.default">
-				<div class="elementor-widget-container">
-							<div class="elementor-icon-wrapper">
-			<a class="elementor-icon" href="https://www.facebook.com/crechndo" target="_blank">
-			<i aria-hidden="true" class="fab fa-facebook-f"></i>			</a>
-		</div>
-						</div>
-				</div>
-					</div>
-		</div>
-					</div>
-		</footer>
-				<footer class="elementor-section elementor-top-section elementor-element elementor-element-4d943e02 elementor-section-height-min-height elementor-section-content-middle elementor-section-full_width elementor-hidden-tablet elementor-hidden-mobile elementor-section-height-default elementor-section-items-middle" data-id="4d943e02" data-element_type="section" data-e-type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
-						<div class="elementor-container elementor-column-gap-default">
-					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-431453cd" data-id="431453cd" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-5591c3e9 elementor-widget elementor-widget-heading" data-id="5591c3e9" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h3 class="elementor-heading-title elementor-size-default">Micro-crèche écologique et respectueuse Athies, Feuchy, Fampoux, Saint-Laurent-Blangy, Saint-Nicolas-lez-Arras, Arras <br>
+            <div class="cnd-pied-col">
+              <div class="cnd-pied-col__interne">
+                <h2 class="cnd-pied-titre">Mots clés</h2>
+                <ul class="cnd-pied-liste">
+                  <li><span>Micro crèche</span></li>
+                  <li><span>Crèche bio</span></li>
+                  <li><span>Ecologique</span></li>
+                  <li><span>Garde d'enfants</span></li>
+                  <li><span>Crèche responsable</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="cnd-pied-col">
+              <div class="cnd-pied-col__interne">
+                <h2 class="cnd-pied-titre">Parents</h2>
+                <ul class="cnd-pied-liste">
+                  <li><a href="/l-accueil-de-votre-enfant-de-a-a-z/">L' Accueil de votre enfant de A à Z</a></li>
+                  <li><a href="/la-journee-de-votre-enfant/">La journée de votre enfant</a></li>
+                </ul>
+                <div class="cnd-pied-cta">
+                  <a class="cnd-bouton" href="http://inscription.crechndo.org/preinscription" target="_blank" rel="noopener">Pré-Inscription</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="cnd-pied-col">
+              <div class="cnd-pied-col__interne">
+                <h2 class="cnd-pied-titre">Suivez-nous</h2>
+                <div class="cnd-pied-reseau">
+                  <a href="https://www.facebook.com/crechndo" target="_blank" rel="noopener" aria-label="Facebook">
+                    <svg class="cnd-icone cnd-icone--facebook" aria-hidden="true"><use href="#cnd-i-facebook" /></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- mentions + signature (≥ 1025 px) -->
+        <div class="cnd-pied-bas">
+          <div class="cnd-pied-bas__contenu">
+            <div class="cnd-pied-bas__interne">
+              <h3 class="cnd-pied-mentions">Micro-crèche écologique et respectueuse Athies, Feuchy, Fampoux, Saint-Laurent-Blangy, Saint-Nicolas-lez-Arras, Arras <br>
 Ce projet est une initiative privée et n'engage en aucun cas les communes citées. <br>
 Copyright © 2022- CRECH'N'DO - Société par actions simplifiée au capital de 20 000 euros - Siren : 892292673 - Siège social : 54, rue Henri Barbusse 62223 Saint Laurent Blangy
-</h3>				</div>
-				</div>
-				<div class="elementor-element elementor-element-579d2c7 elementor-widget elementor-widget-text-editor" data-id="579d2c7" data-element_type="widget" data-e-type="widget" data-widget_type="text-editor.default">
-				<div class="elementor-widget-container">
-									<p>Réalisé par Patrick L. et&nbsp;&nbsp;<a href="https://www.delphacrea.fr/" target="_blank" rel="noopener">delphacréa</a></p>								</div>
-				</div>
-					</div>
-		</div>
-					</div>
-		</footer>
-				<footer class="elementor-section elementor-top-section elementor-element elementor-element-5a70d5b elementor-section-height-min-height elementor-section-content-middle elementor-section-full_width elementor-hidden-desktop elementor-section-height-default elementor-section-items-middle" data-id="5a70d5b" data-element_type="section" data-e-type="section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
-						<div class="elementor-container elementor-column-gap-default">
-					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-ed99406" data-id="ed99406" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-3c085f3 elementor-widget elementor-widget-text-editor" data-id="3c085f3" data-element_type="widget" data-e-type="widget" data-widget_type="text-editor.default">
-				<div class="elementor-widget-container">
-									<p>Réalisé par Patrick L. et <a href="https://www.delphacrea.fr/" target="_blank" rel="noopener">delphacréa</a></p>								</div>
-				</div>
-					</div>
-		</div>
-					</div>
-		</footer>
-				</footer>
-			</div><!-- #page -->
+</h3>
+              <div class="cnd-pied-signature">
+                <div class="cnd-pied-signature__interne">
+                  <p>Réalisé par Patrick L. et&nbsp;&nbsp;<a href="https://www.delphacrea.fr/" target="_blank" rel="noopener">delphacréa</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- signature seule (≤ 1024 px) -->
+        <div class="cnd-pied-bas cnd-pied-bas--compact">
+          <div class="cnd-pied-bas__contenu">
+            <div class="cnd-pied-bas__interne">
+              <div class="cnd-pied-signature">
+                <div class="cnd-pied-signature__interne">
+                  <p>Réalisé par Patrick L. et <a href="https://www.delphacrea.fr/" target="_blank" rel="noopener">delphacréa</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </footer>
+    </div><!-- #page -->

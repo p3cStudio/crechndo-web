@@ -163,23 +163,26 @@ texte (extension Complianz absente), et la galerie photos n'ouvre pas de lightbo
 
 **➜ À ce stade le site est en ligne, statique, visuellement identique, encore habillé d'Elementor.**
 
-### Phase C — Suppression d'Elementor / WordPress  *(phase 2 : HTML + CSS + JS purs)*
+### Phase C — Suppression d'Elementor / WordPress  *(phase 2 : HTML + CSS + JS purs)* — en cours
 
 Méthode : **une page à la fois**, chaque page repassant par le diff pixel de B2 avant d'être validée.
 On commence par header/footer (gain sur les 16 pages), puis les pages de la plus simple à la plus complexe.
 
-| # | Tâche |
-|---|---|
-| C1 | Extraire les vrais tokens de design (couleurs pastel, typo fun-kids / pile système, espacements, breakpoints 767 / 921 / 1024) dans `src/styles/tokens.css` + `base.css` |
-| C2 | Remplacer les primitives de mise en page Elementor (`section` / `container` / `column`) par une micro-grille CSS maison reproduisant la largeur « boxed » (1140 px), les gouttières et les règles d'empilement responsive |
-| C3 | Réécrire les widgets en HTML sémantique + CSS composant : `heading`, `text-editor`, `image`, `image-box`, `icon-list`, `icon`, `button`, `spacer` |
-| C4 | **Header** : nav pure HTML/CSS, sous-menus en CSS au survol (desktop) + ~20 lignes de JS vanilla (mobile), sticky en CSS ➜ supprime `nav-menu`, SmartMenus, jQuery |
-| C5 | **Footer** : grille 5 colonnes + variante mobile, en CSS |
-| C6 | **Icônes** : Font Awesome + eicons + police custom `creche` ➜ **SVG inline** (supprime 4 fichiers de police + 2 CSS) |
-| C7 | **Galerie** : masonry en CSS (`columns`) + lightbox vanilla (~40 lignes) ➜ supprime e-gallery, Swiper, la lightbox Elementor |
-| C8 | **Formulaire de contact** : solution compatible statique (voir section 4) |
-| C9 | Suppression des bundles : jQuery, jQuery-UI, Astra JS, Elementor frontend + Pro, le CSS de 377 Ko. **~1,1 Mo de CSS/JS ➜ ~40 Ko attendus** |
-| C10 | Analytics : retrait de l'UA mort (ou remplacement GA4 — voir questions) |
+Les fragments réécrits à la main portent un marqueur en première ligne
+(`<!-- réécrit à la main (phase 2) -->`) : `tools/build_fragments.py` ne les écrase plus.
+
+| # | Tâche | État |
+|---|---|---|
+| C1 | Extraire les vrais tokens de design (couleurs pastel, typo fun-kids / pile système, espacements, breakpoints 767 / 921 / 1024) dans `src/styles/tokens.css` + `base.css` | partiel — tokens et base posés dans `public/css/site.css` au fil des blocs réécrits |
+| C2 | Remplacer les primitives de mise en page Elementor (`section` / `container` / `column`) par une micro-grille CSS maison reproduisant la largeur « boxed » (1140 px), les gouttières et les règles d'empilement responsive |  |
+| C3 | Réécrire les widgets en HTML sémantique + CSS composant : `heading`, `text-editor`, `image`, `image-box`, `icon-list`, `icon`, `button`, `spacer` |  |
+| C4 | **Header** : nav pure HTML/CSS, sous-menus en CSS au survol (desktop) + ~20 lignes de JS vanilla (mobile), sticky en CSS ➜ supprime `nav-menu`, SmartMenus, jQuery | ✅ FAIT — `src/fragments/header.html` + `public/js/site.js` (2,9 Ko) |
+| C5 | **Footer** : grille 5 colonnes + variante mobile, en CSS | ✅ FAIT — `src/fragments/footer.html` |
+| C6 | **Icônes** : Font Awesome + eicons + police custom `creche` ➜ **SVG inline** (supprime 4 fichiers de police + 2 CSS) | ✅ FAIT — `tools/icons_to_svg.py` ➜ `src/fragments/icons-sprite.html` (5,3 Ko) |
+| C7 | **Galerie** : masonry en CSS (`columns`) + lightbox vanilla (~40 lignes) ➜ supprime e-gallery, Swiper, la lightbox Elementor |  |
+| C8 | **Formulaire de contact** : solution compatible statique (voir section 4) |  |
+| C9 | Suppression des bundles : jQuery, jQuery-UI, Astra JS, Elementor frontend + Pro, le CSS de 377 Ko. **~1,1 Mo de CSS/JS ➜ ~40 Ko attendus** |  |
+| C10 | Analytics : retrait de l'UA mort (ou remplacement GA4 — voir questions) | ✅ FAIT (phase A) — bascule GA4 |
 
 ### Phase D — Finitions
 
