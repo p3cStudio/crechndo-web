@@ -1,0 +1,35 @@
+---
+// Layout partagé par toutes les pages.
+// Le header et le footer sont importés UNE fois ici et injectés dans chaque page
+// au moment du build (set:html) → présents en dur dans le HTML final (SEO ok).
+// Pour modifier le footer/header partout : éditer src/fragments/header.html
+// ou src/fragments/footer.html — une seule fois.
+//
+// Le header est stocké « neutre » : markActiveMenu() y replace les marqueurs de
+// page courante du menu, au build, à partir de src/lib/menuState.js.
+import headerHtml from '../fragments/header.html?raw';
+import footerHtml from '../fragments/footer.html?raw';
+import { withBase } from '../lib/withBase.js';
+import { markActiveMenu } from '../lib/activeMenu.js';
+import { MENU_STATE } from '../lib/menuState.js';
+
+const { bodyClass = '', slug } = Astro.props;
+const header = markActiveMenu(headerHtml, MENU_STATE[slug]);
+---
+<!doctype html>
+<html lang="fr-FR" prefix="og: https://ogp.me/ns#">
+  <head>
+    <slot name="head" />
+  </head>
+  <body
+    data-rsssl="1"
+    itemtype="https://schema.org/WebPage"
+    itemscope="itemscope"
+    class={bodyClass}
+  >
+    <Fragment set:html={withBase(header)} />
+    <slot />
+    <Fragment set:html={withBase(footerHtml)} />
+    <slot name="scripts" />
+  </body>
+</html>

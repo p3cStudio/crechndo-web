@@ -1,0 +1,26 @@
+{
+  "name": "crechndo",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "mirror": "python3 tools/mirror.py",
+    "fragments": "python3 tools/build_fragments.py",
+    "check:html": "python3 tools/diff_html.py",
+    "check:visuel": "node tools/visual_diff.mjs",
+    "check:runtime": "node tools/check_runtime.mjs",
+    "check:interactions": "node tools/check_interactions.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.2.10"
+  },
+  "devDependencies": {
+    "pixelmatch": "^8.0.0",
+    "playwright": "^1.65.0",
+    "pngjs": "^7.0.0"
+  }
+}

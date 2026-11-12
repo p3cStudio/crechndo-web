@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://crechndo.org/sitemap-index.xml

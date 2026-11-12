@@ -1,0 +1,15 @@
+# dépendances
+node_modules/
+
+# build Astro
+dist/
+.astro/
+
+# divers
+.DS_Store
+*.log
+tools/__pycache__/
+tools/.cache/
+
+# cache d'aspiration du site d'origine (régénérable : npm run mirror)
+tools/.cache/

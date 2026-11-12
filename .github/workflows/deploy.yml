@@ -1,0 +1,48 @@
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permet de relancer le déploiement à la main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul déploiement à la fois
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Historique complet : astro.config.mjs lit les dates git des fragments
+          # pour générer les <lastmod> du sitemap.
+          fetch-depth: 0
+      - name: Build Astro
+        uses: withastro/action@v3
+        with:
+          node-version: 22 # Astro 7 exige Node >= 22.12
+        # Déploiement de TEST sur https://p3cstudio.github.io/crechndo-web/
+        # Pour basculer sur le domaine crechndo.org :
+        #   1. créer public/CNAME contenant "crechndo.org"
+        #   2. supprimer les deux lignes "env:" / "BASE_PATH" ci-dessous
+        env:
+          BASE_PATH: /crechndo-web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
