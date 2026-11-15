@@ -22,12 +22,16 @@ const SELECTEURS = {
     sousMenu: 'ul.sub-menu',
     burger: '.elementor-menu-toggle',
     panneau: 'nav.elementor-nav-menu--dropdown',
+    vignettes: '.e-gallery-image',
+    carte: '.elementor-custom-embed iframe',
   },
   genere: {
     parentSousMenu: '.cnd-menu-bureau__liste li:has(> .cnd-sous-menu)',
     sousMenu: '.cnd-sous-menu',
     burger: '.cnd-burger',
     panneau: '.cnd-panneau',
+    vignettes: '.cnd-galerie img',
+    carte: '.cnd-carte iframe',
   },
 };
 
@@ -68,47 +72,52 @@ const PROBES = [
     },
   },
   {
-    name: 'galerie : vignettes affichées',
+    // Le site d'origine pose ses vignettes en image de fond, au fil du
+    // défilement ; le site généré utilise de vraies balises <img>. On compare
+    // donc ce qui compte : le nombre de photos et leur ordre.
+    name: 'galerie : photos affichées',
     viewport: { width: 1440, height: 900 },
     path: '/decouvrir-en-photos/',
-    async run(page) {
-      // Les vignettes sont des images de fond posées en JS quand l'élément entre
-      // dans le champ de vision. On amène donc chaque élément à l'écran, puis on
-      // attend que TOUTES soient peintes : comparer des comptes partiels
-      // reviendrait à comparer la vitesse du réseau, pas le rendu.
-      const items = await page.evaluate(() => document.querySelectorAll('.e-gallery-item').length);
-      let peintes = 0;
-      for (let pass = 0; pass < 20 && peintes < items; pass++) {
-        await page.evaluate(async () => {
-          for (const el of document.querySelectorAll('.e-gallery-item')) {
+    async run(page, sel) {
+      for (let passe = 0; passe < 20; passe++) {
+        const reste = await page.evaluate(async (sel) => {
+          for (const el of document.querySelectorAll(sel.vignettes)) {
             el.scrollIntoView({ block: 'center' });
-            await new Promise((r) => setTimeout(r, 80));
+            await new Promise((r) => setTimeout(r, 60));
           }
-        });
-        await page.waitForTimeout(500);
-        peintes = await page.evaluate(() => [...document.querySelectorAll('.e-gallery-image')]
-          .filter((e) => getComputedStyle(e).backgroundImage !== 'none').length);
+          await new Promise((r) => setTimeout(r, 300));
+          return [...document.querySelectorAll(sel.vignettes)].filter((e) =>
+            e.tagName === 'IMG' ? !e.complete : getComputedStyle(e).backgroundImage === 'none').length;
+        }, sel);
+        if (!reste) break;
       }
-      return { items, toutesPeintes: peintes === items };
+      return await page.evaluate((sel) => {
+        const sources = [...document.querySelectorAll(sel.vignettes)].map((e) =>
+          (e.tagName === 'IMG' ? e.getAttribute('src') : e.dataset.thumbnail).split('/').pop());
+        return { photos: sources.length, ordre: sources.join(',') };
+      }, sel);
     },
   },
   {
     name: 'carte Google',
     viewport: { width: 1440, height: 900 },
     path: '/nous-situer/',
-    async run(page) {
-      const src = await page.locator('.elementor-custom-embed iframe').getAttribute('src');
+    async run(page, sel) {
+      const src = await page.locator(sel.carte).getAttribute('src');
       return { carte: (src ?? '').split('?')[0] };
     },
   },
   {
-    name: 'formulaire de contact : champs',
+    // Le bloc encadré de la page « Nous contacter », commun aux deux sites.
+    // (Le formulaire, lui, est volontairement remplacé par les coordonnées
+    // cliquables : il n'est donc pas comparé.)
+    name: 'page contact : coordonnées encadrées',
     viewport: { width: 1440, height: 900 },
     path: '/nous-contacter/',
     async run(page) {
+      const cadre = page.locator('.elementor-element-f63628a, .cnd-coordonnees').first();
       return {
-        champs: await page.$$eval('form.elementor-form [name^="form_fields"]',
-          (els) => els.map((e) => e.getAttribute('name')).join(',')),
+        texte: (await cadre.innerText()).replace(/\s+/g, ' ').trim(),
       };
     },
   },

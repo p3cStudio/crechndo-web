@@ -13,27 +13,9 @@
   « Informations » et « Facebook » en plus sur mobile) : c'était déjà le cas
   sous WordPress, où il s'agissait de deux menus distincts.
 -->
-<!--
-  TEMPORAIRE — à retirer à la fin de la phase 2, avec les feuilles de style
-  d'Astra. Ce script pose sur <body> les classes dont le CSS d'Astra se sert
-  encore pour les parties du site qui n'ont pas été réécrites.
--->
-<script data-cfasync="false">
-	(function () {
-		var mq = window.matchMedia('(max-width:921.99px)');
-		function apply(isMobile) {
-			var b = document.body.classList;
-			if (isMobile) { b.add('ast-header-break-point'); b.remove('ast-desktop'); }
-			else { b.remove('ast-header-break-point'); b.add('ast-desktop'); }
-		}
-		apply(mq.matches);
-		mq.addEventListener('change', function (e) { apply(e.matches); });
-	})();
-</script>
-
 <a class="cnd-lien-evitement" href="#content">Aller au contenu</a>
 
-<div class="hfeed site" id="page">
+<div id="page">
 
 <header class="cnd-entete">
 

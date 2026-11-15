@@ -54,15 +54,79 @@ const MASK_SELECTORS = ['iframe', '.elementor-g-recaptcha', '.grecaptcha-badge']
 async function shoot(page, url, width) {
   await page.setViewportSize({ width, height: 1000 });
   await page.goto(url, { waitUntil: 'load', timeout: 60000 });
-  // Déclenche le lazy-loading des images et des fonds, puis remonte en haut.
-  await page.evaluate(async () => {
-    const step = window.innerHeight;
-    for (let y = 0; y < document.body.scrollHeight; y += step) {
-      window.scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 60));
-    }
-    window.scrollTo(0, 0);
-  });
+  // Déclenche le chargement différé des images et des fonds, puis remonte en
+  // haut. On avance par tiers d'écran : la galerie du site d'origine ne charge
+  // ses vignettes que si elles passent vraiment près du champ de vision, et un
+  // défilement par bonds d'un écran entier en saute une partie.
+  // On repasse jusqu'à ce que tout soit chargé : la galerie du site d'origine
+  // ne pose ses vignettes qu'au fil du défilement, et un seul passage n'y
+  // suffit pas toujours.
+  // Une seule passe suffit s'il n'y a pas de galerie à réveiller.
+  const galerie = await page.evaluate(() => document.querySelectorAll('.e-gallery-image').length > 0);
+  let restantes = 0;
+  for (let essai = 0; essai < (galerie ? 20 : 1); essai++) {
+    const reste = await page.evaluate(async () => {
+      const pas = window.innerHeight / 3;
+      for (let y = 0; y < document.body.scrollHeight; y += pas) {
+        window.scrollTo(0, y);
+        await new Promise((r) => setTimeout(r, 70));
+      }
+      window.scrollTo(0, 0);
+      await new Promise((r) => setTimeout(r, 400));
+      return [...document.querySelectorAll('.e-gallery-image')]
+        .filter((e) => getComputedStyle(e).backgroundImage === 'none').length;
+    });
+    restantes = reste;
+    if (!reste) break;
+  }
+  // Il reste parfois une vignette que le chargement différé d'Elementor ne
+  // déclenche jamais, tout en bas de la page. On la pose nous-mêmes à partir de
+  // l'attribut que le widget lui a laissé : sinon on comparerait un trou blanc
+  // du site d'origine à une photo bien chargée du site généré.
+  if (restantes) {
+    await page.evaluate(() => {
+      document.querySelectorAll('.e-gallery-image').forEach((e) => {
+        if (getComputedStyle(e).backgroundImage !== 'none') return;
+        const url = e.dataset.thumbnail;
+        if (!url) return;
+        e.style.backgroundImage = `url("${url}")`;
+        e.classList.add('e-gallery-image-loaded');
+      });
+    });
+  }
+  // Attend que toutes les images soient réellement peintes. Sans ça, on
+  // comparerait la vitesse du réseau plutôt que le rendu : sur les pages à
+  // vignettes, le site d'origine n'a pas toujours fini de charger quand le
+  // site local, servi en local, a déjà tout affiché.
+  await page
+    .evaluate(async () => {
+      // Chaque attente est bornée : une image en chargement différé restée
+      // hors du champ de vision ne se charge jamais, et sans garde-fou on
+      // attendrait indéfiniment.
+      const borne = (p) => Promise.race([p, new Promise((r) => setTimeout(r, 15000))]);
+      const charge = (url) => borne(new Promise((r) => {
+        const i = new Image();
+        i.onload = i.onerror = r;
+        i.src = url;
+      }));
+      // Les vignettes de la galerie d'origine sont des images de fond posées
+      // en JavaScript : on les précharge pour être sûr qu'elles sont peintes.
+      const fonds = [...document.querySelectorAll('*')]
+        .map((e) => getComputedStyle(e).backgroundImage.match(/url\("(.+?)"\)/))
+        .filter(Boolean)
+        .map((m) => m[1]);
+      await Promise.all([...new Set(fonds)].map(charge));
+      // Les images en chargement différé qui n'ont jamais croisé le champ de
+      // vision ne se chargeraient jamais : on les force avant d'attendre.
+      document.images.forEach ||= Array.prototype.forEach;
+      for (const i of document.images) {
+        if (!i.complete) i.loading = 'eager';
+      }
+      await Promise.all([...document.images].map((i) =>
+        i.complete ? null : borne(new Promise((r) => { i.onload = i.onerror = r; }))));
+      await borne(document.fonts.ready);
+    })
+    .catch(() => console.warn('    (images encore en cours de chargement)'));
   await page.waitForTimeout(600);
   // Neutralise les animations en cours pour que la capture soit déterministe.
   await page.addStyleTag({

@@ -1,13 +1,13 @@
 ---
-// Page générée depuis /presentation/ — ne pas éditer à la main tant que la phase 1
-// n'est pas terminée : relancer tools/build_fragments.py écrase ce fichier.
+// Page générée depuis /presentation/ par tools/build_fragments.py.
+// Le contenu, lui, est écrit à la main dans src/fragments/presentation-content.html.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import head from '../fragments/presentation-head.html?raw';
 import content from '../fragments/presentation-content.html?raw';
 import scripts from '../fragments/presentation-scripts.html?raw';
 import { withBase } from '../lib/withBase.js';
 
-const bodyClass = "wp-singular page-template-default page page-id-37 wp-custom-logo wp-embed-responsive wp-theme-astra wp-child-theme-astra-child ast-desktop ast-page-builder-template ast-no-sidebar astra-4.14.2 ast-single-post ast-inherit-site-logo-transparent ast-hfb-header ast-full-width-layout ast-sticky-header-shrink ast-inherit-site-logo-sticky elementor-default elementor-kit-10 elementor-page elementor-page-37 astra-addon-4.13.12";
+const bodyClass = "";
 ---
 <BaseLayout bodyClass={bodyClass} slug="presentation">
   <Fragment slot="head" set:html={withBase(head)} />

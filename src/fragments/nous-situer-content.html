@@ -1,48 +1,40 @@
-<div id="content" class="site-content">
-		<div class="ast-container">
-				<div data-elementor-type="wp-page" data-elementor-id="48" class="elementor elementor-48" data-elementor-post-type="page">
-						<section class="elementor-section elementor-top-section elementor-element elementor-element-6d9351c elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="6d9351c" data-element_type="section" data-e-type="section">
-						<div class="elementor-container elementor-column-gap-default">
-					<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-3f4c256" data-id="3f4c256" data-element_type="column" data-e-type="column">
-			<div class="elementor-widget-wrap elementor-element-populated">
-						<div class="elementor-element elementor-element-0b1250b elementor-widget elementor-widget-image" data-id="0b1250b" data-element_type="widget" data-e-type="widget" data-widget_type="image.default">
-				<div class="elementor-widget-container">
-															<img decoding="async" width="111" height="120" src="/img/2022/10/crechndo-saint-laurent-blangy.webp" class="attachment-large size-large wp-image-598" alt="crechndo-saint-laurent-blangy" />															</div>
-				</div>
-				<div class="elementor-element elementor-element-05342a6 elementor-widget elementor-widget-heading" data-id="05342a6" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h1 class="elementor-heading-title elementor-size-default">Trouver notre micro-crèche ?</h1>				</div>
-				</div>
-				<div class="elementor-element elementor-element-59e540a elementor-widget elementor-widget-text-editor" data-id="59e540a" data-element_type="widget" data-e-type="widget" data-widget_type="text-editor.default">
-				<div class="elementor-widget-container">
-									<p>La <strong>micro-crèche</strong> est située au 54 rue Henry Barbusse à <strong>Saint-Laurent-Blangy</strong>.</p>								</div>
-				</div>
-				<div class="elementor-element elementor-element-ec4e5ec elementor-widget elementor-widget-google_maps" data-id="ec4e5ec" data-element_type="widget" data-e-type="widget" data-widget_type="google_maps.default">
-				<div class="elementor-widget-container">
-							<div class="elementor-custom-embed">
-			<iframe loading="lazy"
-					src="https://maps.google.com/maps?q=54%20rue%20henry%20barbusse%2062223%20saint%20laurent%20blangy&#038;t=m&#038;z=13&#038;output=embed&#038;iwloc=near"
-					title="54 rue henry barbusse 62223 saint laurent blangy"
-					aria-label="54 rue henry barbusse 62223 saint laurent blangy"
-			></iframe>
-		</div>
-						</div>
-				</div>
-				<div class="elementor-element elementor-element-5980a20 elementor-button-info elementor-align-center elementor-widget elementor-widget-button" data-id="5980a20" data-element_type="widget" data-e-type="widget" data-widget_type="button.default">
-				<div class="elementor-widget-container">
-									<div class="elementor-button-wrapper">
-					<a class="elementor-button elementor-button-link elementor-size-lg" href="/la-micro-creche/">
-						<span class="elementor-button-content-wrapper">
-									<span class="elementor-button-text">Voir le lieu</span>
-					</span>
-					</a>
-				</div>
-								</div>
-				</div>
-					</div>
-		</div>
-					</div>
-		</section>
-				</div>
-			</div> <!-- ast-container -->
-	</div><!-- #content -->
+<!-- réécrit à la main (phase 2) -->
+<!--
+  Nous situer — HTML pur, sans Astra ni Elementor.
+  Styles : public/css/site.css (« Grille de contenu », « Blocs de contenu »).
+-->
+<div id="content" class="cnd-page">
+  <div class="cnd-page__contenu">
+    <main>
+
+      <section class="cnd-section cnd-section--marge-30">
+        <div class="cnd-section__contenu">
+          <div class="cnd-col cnd-col--100">
+            <div class="cnd-col__interne">
+
+              <div class="cnd-bloc cnd-image">
+                <img width="111" height="120" src="/img/2022/10/crechndo-saint-laurent-blangy.webp" alt="crechndo-saint-laurent-blangy" />
+              </div>
+
+              <h1 class="cnd-bloc cnd-titre-bloc cnd-titre-bloc--33">Trouver notre micro-crèche ?</h1>
+
+              <div class="cnd-bloc cnd-texte cnd-texte--16 cnd-texte--marge-20">
+                  <p>La <strong>micro-crèche</strong> est située au 54 rue Henry Barbusse à <strong>Saint-Laurent-Blangy</strong>.</p>
+              </div>
+
+              <div class="cnd-bloc cnd-carte">
+                <iframe loading="lazy" src="https://maps.google.com/maps?q=54%20rue%20henry%20barbusse%2062223%20saint%20laurent%20blangy&#038;t=m&#038;z=13&#038;output=embed&#038;iwloc=near" title="54 rue henry barbusse 62223 saint laurent blangy" aria-label="54 rue henry barbusse 62223 saint laurent blangy" ></iframe>
+              </div>
+
+              <div class="cnd-bloc cnd-bloc-bouton cnd-bloc-bouton--cadre">
+                <a class="cnd-bouton cnd-bouton--lg" href="/la-micro-creche/">Voir le lieu</a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>

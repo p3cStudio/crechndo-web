@@ -71,3 +71,57 @@
     burgers.forEach(fermerPanneau);
   });
 })();
+
+/* --- apparition au défilement --------------------------------------------
+   Les blocs marqués `cnd-apparition` restent invisibles jusqu'à ce qu'ils
+   entrent dans le champ de vision, puis jouent leur animation une fois.
+   C'est ce que faisait Elementor avec ses classes `elementor-invisible`
+   et `animated`.                                                           */
+(function () {
+	var blocs = document.querySelectorAll('.cnd-apparition');
+	if (!blocs.length) return;
+
+	function jouer(bloc) {
+		bloc.classList.add('cnd-apparition--jouee');
+	}
+
+	if (!('IntersectionObserver' in window)) {
+		blocs.forEach(jouer);
+		return;
+	}
+
+	var guetteur = new IntersectionObserver(function (entrees) {
+		entrees.forEach(function (e) {
+			if (!e.isIntersecting) return;
+			jouer(e.target);
+			guetteur.unobserve(e.target);
+		});
+	});
+	blocs.forEach(function (b) { guetteur.observe(b); });
+})();
+
+/* --- parallaxe au défilement ----------------------------------------------
+   Un seul bloc du site glisse verticalement au fil du défilement : le koala
+   de la page « Offres et tarifs ». On reprend la formule d'Elementor — le
+   décalage va de +50×vitesse quand le bloc entre par le bas de l'écran à
+   −50×vitesse quand il sort par le haut. La mesure porte sur le bloc parent,
+   qui n'est pas déplacé : mesurer le bloc déplacé le ferait dériver.         */
+(function () {
+	var blocs = document.querySelectorAll('[data-cnd-parallaxe]');
+	if (!blocs.length) return;
+
+	function placer() {
+		var hauteurEcran = window.innerHeight;
+		blocs.forEach(function (bloc) {
+			var cadre = bloc.parentElement.getBoundingClientRect();
+			var amplitude = parseFloat(bloc.dataset.cndParallaxe) * 50;
+			var avance = (hauteurEcran - cadre.top) / (hauteurEcran + cadre.height);
+			avance = Math.min(Math.max(avance, 0), 1);
+			bloc.style.transform = 'translateY(' + (amplitude * (1 - 2 * avance)).toFixed(2) + 'px)';
+		});
+	}
+
+	placer();
+	window.addEventListener('scroll', placer, { passive: true });
+	window.addEventListener('resize', placer);
+})();

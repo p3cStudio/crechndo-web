@@ -45,6 +45,35 @@ PAGE_END = "</div><!-- #page -->"
 # d'origine, sans prévenir.
 MARQUEUR_MANUEL = "<!-- réécrit à la main (phase 2) -->"
 
+# --- fin de la phase 2 : on se débarrasse d'Astra, Elementor et jQuery -------
+# Le site ne s'appuie plus que sur public/css/site.css et public/js/site.js.
+# Ce qui reste du <head> d'origine, ce sont les métadonnées : titre, description,
+# balises Open Graph, canonique, favicon, données structurées, et le tag GA4.
+SANS_WORDPRESS = True
+
+STYLES_HERITES = re.compile(r"<style[^>]*>.*?</style>\s*", re.S)
+FEUILLES_HERITEES = re.compile(
+    r"""<link[^>]*rel=['"]stylesheet['"][^>]*>\s*""", re.S)
+SCRIPTS_HERITES = re.compile(
+    r'<script[^>]*src="[^"]*(?:wpo-minify|/js/)[^"]*"[^>]*></script>\s*', re.S)
+SCRIPTS_INLINE_HERITES = re.compile(
+    r"<script(?![^>]*\bsrc=)(?![^>]*Google Analytics)[^>]*>.*?</script>\s*", re.S)
+
+
+def sans_wordpress_head(head: str) -> str:
+    """Retire du <head> les feuilles et les scripts hérités de WordPress."""
+    head = STYLES_HERITES.sub("", head)
+    head = FEUILLES_HERITEES.sub("", head)
+    head = SCRIPTS_HERITES.sub("", head)
+    return head
+
+
+def sans_wordpress_scripts(scripts: str) -> str:
+    """Le pied de page d'origine ne chargeait que jQuery, Astra et Elementor."""
+    scripts = SCRIPTS_HERITES.sub("", scripts)
+    scripts = SCRIPTS_INLINE_HERITES.sub("", scripts)
+    return scripts
+
 
 def est_manuel(chemin: str) -> bool:
     if not os.path.exists(chemin):
@@ -155,12 +184,28 @@ def rewrite_js(text: str) -> str:
 # --------------------------------------------------------------------------- #
 #  Assets : cache -> public
 # --------------------------------------------------------------------------- #
+# Depuis la fin de la phase 2, le site n'utilise plus que ses propres feuilles
+# et scripts : on ne recopie donc plus ceux de WordPress, ni les modules
+# d'Elementor, ni les polices d'icônes devenues des SVG.
+INUTILES = (
+    "css/", "js/wpo-minify", "vendor/",
+    "fonts/fa-", "fonts/eicons", "fonts/creche",
+)
+
+
+def inutile(rel: str) -> bool:
+    chemin = rel.replace(os.sep, "/")
+    return chemin.startswith(INUTILES)
+
+
 def copy_assets() -> int:
     count = 0
     for dirpath, _dirnames, filenames in os.walk(CACHE_ASSETS):
         for name in filenames:
             src = os.path.join(dirpath, name)
             rel = os.path.relpath(src, CACHE_ASSETS)
+            if SANS_WORDPRESS and inutile(rel):
+                continue
             dst = os.path.join(PUBLIC, rel)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             ext = os.path.splitext(name)[1].lower()
@@ -230,6 +275,8 @@ def split_page(slug: str, html: str) -> dict[str, str]:
     head = html[head_start:head_end]
     head = GA_LEGACY_RE.sub(GA4_SNIPPET, head)
     head = rewrite_head(head)
+    if SANS_WORDPRESS:
+        head = sans_wordpress_head(head)
 
     # --- body -------------------------------------------------------------
     body_open = html.index("<body")
@@ -260,7 +307,7 @@ def split_page(slug: str, html: str) -> dict[str, str]:
         "header": prep(header),
         "content": prep(content),
         "footer": prep(footer),
-        "scripts": prep(scripts),
+        "scripts": sans_wordpress_scripts(prep(scripts)) if SANS_WORDPRESS else prep(scripts),
     }
 
 
@@ -386,15 +433,15 @@ def main() -> int:
     # --- pages .astro -----------------------------------------------------
     for slug, p in parts.items():
         astro = f"""---
-// Page générée depuis {PAGES[slug]} — ne pas éditer à la main tant que la phase 1
-// n'est pas terminée : relancer tools/build_fragments.py écrase ce fichier.
+// Page générée depuis {PAGES[slug]} par tools/build_fragments.py.
+// Le contenu, lui, est écrit à la main dans src/fragments/{slug}-content.html.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import head from '../fragments/{slug}-head.html?raw';
 import content from '../fragments/{slug}-content.html?raw';
 import scripts from '../fragments/{slug}-scripts.html?raw';
 import {{ withBase }} from '../lib/withBase.js';
 
-const bodyClass = {json.dumps(p["body_class"], ensure_ascii=False)};
+const bodyClass = {json.dumps("" if SANS_WORDPRESS else p["body_class"], ensure_ascii=False)};
 ---
 <BaseLayout bodyClass={{bodyClass}} slug={json.dumps(slug)}>
   <Fragment slot="head" set:html={{withBase(head)}} />

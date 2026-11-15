@@ -12,9 +12,14 @@ pour afficher la page.
 > C'est du **SSG** (génération statique), pas du SSR : rien ne tourne côté serveur en
 > production, on ne sert que des fichiers.
 
-État : **phase 1 terminée** — le site est reproduit à l'identique, librairies WordPress
-comprises. La phase 2 (suppression d'Astra, Elementor, jQuery et Font Awesome) reste à
-faire ; voir [MIGRATION-PLAN.md](MIGRATION-PLAN.md).
+État : **phases 1 et 2 terminées** — le site est reproduit à l'identique et ne dépend
+plus d'Astra, d'Elementor, de jQuery ni d'aucune police d'icônes. Tout le rendu tient
+dans `public/css/site.css` (44 Ko) et `public/js/site.js` (5 Ko) ; voir
+[MIGRATION-PLAN.md](MIGRATION-PLAN.md).
+
+Le rendu est vérifié page par page contre le site d'origine : diff pixel sur
+16 pages × 3 largeurs, comparaison du texte visible, contrôle des liens, des requêtes
+et des comportements. Les outils sont décrits plus bas.
 
 ## Structure
 
@@ -23,18 +28,19 @@ src/
   layouts/BaseLayout.astro     ← squelette commun (header + footer + <body>)
   lib/
     withBase.js                ← préfixe les URLs quand le site est dans un sous-dossier
-    activeMenu.js              ← remet les marqueurs « page courante » dans le menu
-    menuState.js               ← GÉNÉRÉ — quel item de menu est actif, page par page
+    activeMenu.js              ← marque la page courante dans le menu
   fragments/
-    header.html                ← HEADER MUTUALISÉ (à éditer une seule fois)
-    footer.html                ← FOOTER MUTUALISÉ (à éditer une seule fois)
-    <slug>-head.html           ← <head> propre à la page
-    <slug>-content.html        ← contenu propre à la page
-    <slug>-scripts.html        ← scripts de fin de page
+    header.html                ← EN-TÊTE MUTUALISÉ (à éditer une seule fois)
+    footer.html                ← PIED MUTUALISÉ (à éditer une seule fois)
+    icons-sprite.html          ← GÉNÉRÉ — les 7 icônes du site, en SVG
+    <slug>-head.html           ← GÉNÉRÉ — métadonnées de la page (titre, SEO, GA4)
+    <slug>-content.html        ← contenu de la page, écrit à la main
   pages/<slug>.astro           → /<slug>/   (routing automatique)
 public/
-  css/ js/ fonts/ img/         ← assets du site d'origine, URLs racine-relatives
-  vendor/elementor/            ← modules Elementor chargés à l'exécution
+  css/site.css                 ← TOUT le style du site
+  js/site.js                   ← menus, apparitions au défilement, parallaxe
+  fonts/Funkids.ttf            ← la police des titres, seule police embarquée
+  img/                         ← photos et illustrations
   robots.txt  .nojekyll
 tools/                         ← outils de migration et de non-régression
 dist/                          ← résultat du build (non versionné)
@@ -66,9 +72,10 @@ Le contenu de `dist/` est ce qui part en ligne. `npm run preview` le prévisuali
 - **Le titre, la description, les métadonnées d'une page** :
   `src/fragments/<slug>-head.html`.
 
-⚠️ Tant que la phase 1 n'est pas close, relancer `npm run fragments` **écrase** les
-fragments et les pages `.astro` à partir du cache d'aspiration. À partir de la phase 2,
-les fragments deviennent la source de vérité et cette commande ne doit plus être lancée.
+Les fragments de contenu sont désormais **la source de vérité** : ils sont écrits à la
+main et portent en première ligne le marqueur `<!-- réécrit à la main (phase 2) -->`.
+`npm run fragments` les reconnaît et les laisse intacts ; il ne régénère plus que les
+`<head>` (métadonnées) et les pages `.astro`.
 
 ## Outils de migration
 
@@ -79,7 +86,8 @@ les fragments deviennent la source de vérité et cette commande ne doit plus ê
 | `npm run check:html` | Compare le HTML généré à celui du site d'origine, balise à balise. |
 | `npm run check:visuel` | **Diff pixel** : 16 pages × 3 largeurs, original contre version générée. |
 | `npm run check:runtime` | Requêtes en échec, erreurs JS, liens internes morts. |
-| `npm run check:interactions` | Menus, burger, galerie, carte, formulaire : même comportement qu'avant ? |
+| `npm run check:interactions` | Menus, burger, galerie, carte, coordonnées : même comportement qu'avant ? |
+| `npm run check:textes` | Compare le **texte visible** de chaque page à celui du site d'origine. |
 
 Les trois derniers ont besoin que le site soit servi. Exemple complet :
 
@@ -91,8 +99,18 @@ npm run build && npm run preview
 LOCAL=http://localhost:4322 npm run check:visuel
 ```
 
-Le **diff pixel est le garde-fou de la phase 2** : tant qu'il affiche 0 %, le rendu n'a
-pas bougé. Il tourne aussi sur une seule page : `npm run check:visuel -- nous-contacter`.
+Le **diff pixel est le garde-fou de la migration** : tant qu'il affiche 0 %, le rendu
+n'a pas bougé. Il tourne aussi sur une seule page :
+`npm run check:visuel -- nous-contacter`, et accepte `SEUIL`, `WIDTHS` et `LOCAL`.
+
+Trois écarts résiduels sont attendus et documentés :
+
+- **nous-contacter** : le formulaire est volontairement remplacé par les coordonnées
+  cliquables (décision validée) — la moitié basse de la page diffère donc.
+- **decouvrir-en-photos** : les photos sont de vraies balises `<img>` là où le site
+  d'origine les posait en image de fond ; le rééchantillonnage diffère de 0,1 % de
+  pixels, invisible à l'œil.
+- **notre-philosophie** : 0,03 % de pixels d'anticrénelage sur les petites icônes.
 
 ## Publier sur GitHub Pages
 
@@ -120,9 +138,10 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
 
 ## Points connus
 
-- **Formulaire de contact** : celui du site d'origine poste vers WordPress et ne peut
-  pas fonctionner sur un hébergement statique. Il est pour l'instant reproduit tel quel,
-  donc inopérant ; il sera remplacé en phase 2 par les coordonnées cliquables.
+- **Formulaire de contact** : celui du site d'origine postait vers WordPress et ne
+  pouvait pas fonctionner sur un hébergement statique. Il est remplacé par les
+  coordonnées cliquables — adresse électronique, téléphone, adresse postale. C'est le
+  seul endroit du site qui s'écarte volontairement de l'original.
 - **Page « Politique de cookies »** : elle affiche le code court
   `[cmplz-document type=…]` au lieu du texte. **Le bug vient du site d'origine**
   (extension Complianz absente) et a été reproduit à l'identique.
@@ -130,4 +149,8 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   d'amorce au tag GA4 `G-HZ07V9F2TE`. Ici GA4 est posé directement.
 - **Métadonnées SEO** : les 16 pages partagent le même `<title>` et la même
   `meta description` — fidèle à l'original, mais à corriger un jour.
-- La galerie photos n'ouvre pas de lightbox : c'est déjà le cas sur le site d'origine.
+- La galerie photos n'ouvre pas de visionneuse : c'est déjà le cas sur le site
+  d'origine.
+- **Lien dans une liste à icônes** : sur « Notre philosophie », le lien vers Croc La Vie
+  passe à la ligne au milieu de la phrase. C'est un comportement d'Elementor, reproduit
+  tel quel (`.cnd-liste-icones li a { display: flex }`).

@@ -5,10 +5,11 @@ On applique à la page d'origine exactement les mêmes réécritures d'URL que l
 la génération, puis on compare balise à balise. Tout ce qui reste comme différence
 est soit voulu (balises WordPress purgées, bascule GA4), soit une régression.
 
-Depuis la phase 2, le header et le footer sont réécrits à la main : les comparer au
-balisage d'origine n'aurait plus de sens. La comparaison porte donc sur le <head> et
-sur le contenu de la page — c'est-à-dire sur ce qui n'a pas encore été réécrit.
-Le garde-fou du balisage réécrit, c'est le diff pixel (tools/visual_diff.mjs).
+Depuis la phase 2, le header, le footer et le contenu des pages sont réécrits à la
+main les uns après les autres : les comparer au balisage d'origine n'aurait plus de
+sens. On ne compare donc que ce qui n'a pas encore été réécrit — le <head> toujours,
+le contenu tant que le fragment de la page ne porte pas le marqueur « réécrit à la
+main ». Le garde-fou du balisage réécrit, c'est le diff pixel (tools/visual_diff.mjs).
 
 Usage :  python3 tools/diff_html.py [slug…]      (sans argument : les 16 pages)
 """
@@ -23,6 +24,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from build_fragments import (  # noqa: E402
     CACHE_RAW,
+    FRAGMENTS,
+    SANS_WORDPRESS,
+    est_manuel,
+    sans_wordpress_head,
     CONTENT_END,
     CONTENT_START,
     GA_LEGACY_RE,
@@ -52,12 +57,21 @@ def contenu_de_page(body: str) -> str:
     return body[debut:fin]
 
 
+def reecrite(slug: str) -> bool:
+    """La page a-t-elle déjà été réécrite à la main ?"""
+    return est_manuel(os.path.join(FRAGMENTS, f"{slug}-content.html"))
+
+
 def expected(slug: str) -> str:
     with open(os.path.join(CACHE_RAW, f"{slug}.html"), encoding="utf-8") as fh:
         html = purge(fh.read())
     head_start = html.index(">", html.index("<head")) + 1
     head = html[head_start:html.index("</head>")]
     head = rewrite_head(GA_LEGACY_RE.sub("", head))
+    if SANS_WORDPRESS:
+        head = sans_wordpress_head(head)
+    if reecrite(slug):
+        return head
     body = html[html.index(">", html.index("<body")) + 1:html.index("</body>")]
     body = rewrite_internal_links(rewrite_assets(body))
     return head + contenu_de_page(body)
@@ -74,6 +88,8 @@ def actual(slug: str) -> str:
     head = re.sub(r"<!-- Google Analytics 4 -->.*?gtag\('config'[^<]*</script>", "", head, flags=re.S)
     head = re.sub(r"<!-- Notre feuille de style.*?-->", "", head, flags=re.S)
     head = re.sub(r'<link rel="stylesheet" href="[^"]*/css/site\.css"\s*/?>', "", head)
+    if reecrite(slug):
+        return head
     body = html[html.index(">", html.index("<body")) + 1:html.index("</body>")]
     return head + contenu_de_page(body)
 
@@ -87,7 +103,8 @@ def main() -> int:
             line for line in difflib.unified_diff(a, b, "origine", "généré", n=1, lineterm="")
             if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
         ]
-        status = "✓ identique" if not diff else f"✗ {len(diff)} différences"
+        portee = "métadonnées" if reecrite(slug) else "head + contenu"
+        status = f"✓ identique ({portee})" if not diff else f"✗ {len(diff)} différences"
         print(f"{slug:40s} {status}")
         for line in diff[:40]:
             print("    " + line[:200])

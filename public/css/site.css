@@ -1,13 +1,15 @@
 /* ==========================================================================
    Crèch'n'do — feuille de style du site
    --------------------------------------------------------------------------
-   Écrite à la main pendant la phase 2, pour remplacer Astra + Elementor.
-   Elle est chargée APRÈS les feuilles héritées de WordPress, encore présentes
-   le temps de la migration : les blocs déjà réécrits n'ont plus aucune classe
-   Elementor, donc aucune règle de l'ancien CSS ne les atteint.
+   Écrite à la main pendant la phase 2 : c'est désormais la seule feuille du
+   site. Astra, Elementor et leurs ~1,7 Mo de CSS ont été retirés.
 
-   Tout est préfixé `cnd-` : rien ici ne peut toucher les parties du site qui
-   n'ont pas encore été réécrites.
+   Elle est organisée du général au particulier : socle typographique, boutons,
+   en-tête, pied, socle de page, grille de contenu, blocs, puis les variantes.
+   Toutes les classes sont préfixées `cnd-`.
+
+   Les commentaires qui mentionnent Elementor expliquent *pourquoi* une règle a
+   la forme qu'elle a : elle reproduit un comportement du site d'origine.
    ========================================================================== */
 
 :root {
@@ -21,6 +23,117 @@
 
   --cnd-police-titre: "fun-kids", sans-serif;
   --cnd-police-texte: Arial, sans-serif;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+/* ==========================================================================
+   Socle typographique
+   --------------------------------------------------------------------------
+   Ce que le thème d'origine posait avant toute chose : la taille de référence,
+   la police, les couleurs et les marges de base. Ces règles remplacent
+   désormais sa feuille de style.
+   ========================================================================== */
+@font-face {
+  font-family: "fun-kids";
+  font-style: normal;
+  font-weight: 400;
+  font-display: auto;
+  src: url("/fonts/Funkids.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "fun-kids";
+  font-style: normal;
+  font-weight: 500;
+  font-display: auto;
+  src: url("/fonts/Funkids.ttf") format("truetype");
+}
+
+/* 93,75 % de 16 px = 15 px, et 85,5 % = 13,68 px en dessous de 922 px.
+   Toutes les tailles en `rem` du site en découlent. */
+html {
+  font-size: 93.75%;
+}
+
+@media (max-width: 921px) {
+  html { font-size: 85.5%; }
+}
+
+body {
+  margin: 0;
+  /* Lissage des caractères et taille de texte figée : deux réglages du thème
+     d'origine, sans lesquels le texte serait rendu un peu plus gras. */
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  background-color: var(--cnd-blanc);
+  color: var(--cnd-texte);
+  font-family: var(--cnd-police-texte);
+  font-size: 1rem;
+  font-weight: 500;
+  /* En `em` : la hauteur de ligne devient une longueur, héritée telle quelle
+     par les textes plus petits. C'est ce que faisait le thème. */
+  line-height: 1.65em;
+}
+
+a {
+  color: var(--cnd-texte-lien);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: var(--cnd-texte-survol);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-titre);
+  font-weight: 600;
+}
+
+h1 { font-size: 33px; line-height: 1.4em; }
+h2 { font-size: 32px; line-height: 1.3em; }
+h3 { font-size: 26px; line-height: 1.3em; }
+
+@media (max-width: 921px) {
+  h1 { font-size: 26px; }
+  h2 { font-size: 25px; }
+  h3 { font-size: 20px; }
+}
+
+p {
+  margin: 0 0 1.75em;
+}
+
+/* Les listes du thème sont retirées de 3 em et laissent 1,5 em sous elles.
+   Les listes des composants (menu, pied, plan du site…) posent leurs propres
+   marges et ne sont donc pas concernées. */
+ul, ol {
+  margin: 0 0 1.5em 3em;
+  padding: 0;
+}
+
+b, strong {
+  font-weight: 700;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+button {
+  font-family: inherit;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -42,11 +155,8 @@
   cursor: pointer;
 }
 
-/* Les marges intérieures du bouton changent aux points de rupture du thème
-   d'origine (921 px et 544 px). C'est ce qui décide si « Pré-Inscription »
-   tient sur une ligne ou passe sur deux, donc la hauteur de la barre du haut. */
-/* Le thème d'origine colore encore tous les liens ; `a.cnd-bouton` est juste
-   assez précis pour reprendre la main. À supprimer avec lui. */
+/* `a.cnd-bouton` plutôt que `.cnd-bouton` : la couleur des liens est posée sur
+   `a`, il faut au moins autant de précision pour la reprendre. */
 a.cnd-bouton {
   color: var(--cnd-blanc);
 }
@@ -240,8 +350,8 @@ a.cnd-bouton {
 }
 
 /* --- menu bureau (≥ 1025 px) --------------------------------------------- */
-/* `.cnd-entete ul` remet déjà les marges à zéro : il faut être plus précis
-   qu'elle pour que le centrage par marges automatiques s'applique. */
+/* Plus précis que `.cnd-entete ul`, qui remet les marges à zéro : sans quoi le
+   centrage par marges automatiques ne s'appliquerait pas. */
 .cnd-entete .cnd-menu-bureau__liste {
   display: flex;
   flex-wrap: wrap;
@@ -258,7 +368,8 @@ a.cnd-bouton {
   position: relative;
 }
 
-/* Préfixé pour passer devant la règle de liens du thème d'origine. */
+/* Préfixé : la couleur des liens est posée sur `a`, il faut au moins autant de
+   précision pour la reprendre. */
 .cnd-entete .cnd-menu-bureau__lien {
   display: flex;
   align-items: center;
@@ -340,9 +451,8 @@ a.cnd-bouton {
 }
 
 /* --- bouton burger ------------------------------------------------------- */
-/* Sélecteur volontairement plus précis que `.cnd-burger` : tant que la feuille
-   d'Elementor est là, sa règle `.elementor-kit-10 button` repeindrait le bouton
-   en violet. Ce préfixe disparaîtra avec elle. */
+/* Préfixé par `.cnd-entete` : le bouton reprend ainsi la main sur les styles de
+   `button` du socle. */
 .cnd-entete .cnd-burger {
   display: none;
   align-items: center;
@@ -618,9 +728,7 @@ a.cnd-bouton {
 }
 
 /* --- titres de colonne --------------------------------------------------- */
-/* Préfixés pour passer devant les règles de titres et de liens du thème
-   d'origine (`.elementor-kit-10 h2`, `.elementor-kit-10 a`), encore chargé.
-   Ce préfixe disparaîtra avec lui. */
+/* Préfixés : titres et liens reprennent ainsi la main sur le socle. */
 .cnd-pied .cnd-pied-titre {
   margin: 0;
   color: var(--cnd-blanc);
@@ -640,8 +748,7 @@ a.cnd-bouton {
   position: relative;
 }
 
-/* Préfixé pour passer devant la règle de liens du thème d'origine
-   (`.elementor-kit-10 a`), encore chargé. À simplifier avec lui. */
+/* Préfixé : les liens reprennent ainsi la main sur le socle. */
 .cnd-pied .cnd-pied-liste a,
 .cnd-pied .cnd-pied-liste span {
   display: flex;
@@ -773,4 +880,763 @@ a.cnd-bouton {
   .cnd-pied-haut { display: none; }
   .cnd-pied-bas--compact { padding: 30px 20px 20px; }
   .cnd-pied-bas__interne { padding: 0; }
+}
+
+/* ==========================================================================
+   Socle de page
+   --------------------------------------------------------------------------
+   La colonne verticale du site : en-tête, contenu, pied. Le contenu s'étire
+   pour que le pied reste en bas même sur une page courte.
+
+   `#page` et `#content` sont visés par leur identifiant : le thème d'origine,
+   encore chargé, les vise de la même façon et un sélecteur de classe ne
+   passerait pas devant. Les deux éléments sont uniques dans la page.
+   ========================================================================== */
+#page {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 100vh;
+}
+
+#content {
+  flex-grow: 1;
+}
+
+/* Largeur du contenu. Par défaut la page est pleine largeur : ce sont les
+   sections qui posent leurs propres marges. Trois pages seulement (accueil,
+   mentions légales, politique de cookies) utilisent la variante encadrée du
+   thème, large de 1240 px à partir de 922 px. */
+.cnd-page__contenu--encadre {
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (min-width: 922px) {
+  .cnd-page__contenu--encadre { max-width: 1240px; }
+}
+
+/* Marges verticales du bloc d'article, posées par le thème à partir de 1200 px. */
+@media (min-width: 1200px) {
+  .cnd-page__principal { margin: 60px 0; }
+}
+
+/* Titre de page (le `h1` du thème, présent sur deux pages seulement). */
+.cnd-entete-page {
+  margin-bottom: 1.5em;
+  text-align: left;
+}
+
+/* Variante sans marge basse : l'écart avec le contenu ne vient alors que de la
+   marge du titre, qui déborde de l'en-tête. Le thème d'origine distingue déjà
+   les deux cas. */
+.cnd-entete-page--serree {
+  margin-bottom: 0;
+}
+
+/* Le dernier bloc du corps de page ne garde pas sa marge basse. */
+.cnd-corps-page > :last-child {
+  margin-bottom: 0;
+}
+
+.cnd-corps-page p {
+  margin: 0 0 1.6em;
+}
+
+.cnd-titre-page {
+  margin: 0 0 0.5em;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-titre);
+  font-size: 1.7333333333333rem;
+  font-weight: 400;
+  /* Sans unité, comme dans le thème d'origine : la hauteur de ligne n'est pas
+     arrondie au même soixante-quatrième de pixel qu'avec `1.2em`, et le texte
+     de la page se décalerait d'une rangée de pixels à certaines largeurs. */
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   Grille de contenu
+   --------------------------------------------------------------------------
+   Reprend les primitives d'Elementor : une section pleine largeur, un
+   conteneur centré large de 1140 px au plus, des colonnes en pourcentage qui
+   passent à la ligne en dessous de 1025 px, et 10 px de marge intérieure
+   autour du contenu de chaque colonne.
+   ========================================================================== */
+.cnd-section__contenu {
+  display: flex;
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+/* Section pleine largeur : le conteneur n'est plus bridé à 1140 px. */
+.cnd-section--pleine > .cnd-section__contenu {
+  max-width: none;
+}
+
+.cnd-col {
+  display: flex;
+  min-height: 1px;
+  position: relative;
+}
+
+.cnd-col__interne {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+}
+
+@media (max-width: 1024px) {
+  .cnd-section__contenu { flex-wrap: wrap; }
+}
+
+/* En dessous de 768 px, les colonnes s'empilent sur toute la largeur quelle que
+   soit leur part : c'est la règle du site d'origine. */
+@media (max-width: 767px) {
+  /* Volontairement plus précis que les classes de largeur `.cnd-col--NN`,
+     déclarées plus bas : la pile l'emporte sur les pourcentages. */
+  .cnd-section__contenu .cnd-col { width: 100%; }
+}
+
+/* Largeurs de colonne, en pourcentage du conteneur. */
+.cnd-col--100 { width: 100%; }
+.cnd-col--66 { width: 66.666%; }
+.cnd-col--50 { width: 50%; }
+.cnd-col--33 { width: 33.333%; }
+.cnd-col--25 { width: 25%; }
+.cnd-col--20 { width: 20%; }
+
+/* ==========================================================================
+   Texte courant
+   --------------------------------------------------------------------------
+   Les blocs de texte libre des pages : titres de niveau 2 et paragraphes.
+   ========================================================================== */
+.cnd-texte {
+  color: var(--cnd-texte);
+  font-family: var(--cnd-police-texte);
+}
+
+.cnd-texte h2 {
+  margin: 0 0 20px;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-titre);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.3em;
+}
+
+@media (min-width: 922px) {
+  .cnd-texte h2 { font-size: 32px; }
+}
+
+.cnd-texte p {
+  margin: 0 0 1.75em;
+}
+
+/* Dans le corps d'article du thème, la marge de paragraphe est plus serrée. */
+.cnd-corps-page .cnd-texte p {
+  margin-bottom: 1.6em;
+}
+
+/* ==========================================================================
+   Plan du site
+   ========================================================================== */
+.cnd-plan {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cnd-plan__groupe {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .cnd-plan__groupe { width: 50%; }
+}
+
+@media (min-width: 1025px) {
+  .cnd-plan__groupe { width: 25%; }
+}
+
+.cnd-plan__titre {
+  margin: 0;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-titre);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.3em;
+}
+
+@media (min-width: 922px) {
+  .cnd-plan__titre { font-size: 32px; }
+}
+
+.cnd-plan__liste {
+  margin: 0 0 1.5em 3em;
+  padding: 0;
+  list-style: disc;
+}
+
+.cnd-plan__liste a {
+  color: var(--cnd-texte);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   Blocs de contenu
+   --------------------------------------------------------------------------
+   Les briques dont les pages sont faites : image, titre, texte, bouton,
+   liste à icônes. Elles remplacent les « widgets » d'Elementor et gardent
+   les mêmes dimensions.
+   ========================================================================== */
+/* 20 px sous chaque bloc, sauf le dernier de sa colonne — c'est la règle
+   d'espacement du site d'origine. Les sections imbriquées, elles, n'ajoutent
+   rien : seul le bloc qui les précède pousse. */
+.cnd-bloc:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+/* --- image --------------------------------------------------------------- */
+.cnd-image {
+  text-align: center;
+}
+
+/* `vertical-align: middle` est le réglage du thème d'origine : il décale
+   l'image de quelques pixels dans sa ligne, et sans lui elle remonte. */
+.cnd-image img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+/* --- titre de bloc ------------------------------------------------------- */
+/* L'interligne suit le niveau du titre, comme dans le thème d'origine :
+   1,4 em pour un `h1`, 1,3 em en dessous. */
+.cnd-titre-bloc {
+  margin: 0;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-titre);
+  font-weight: 600;
+  line-height: 1.3em;
+  text-align: center;
+}
+
+/* Un titre de niveau 1 a l'interligne le plus large du thème. */
+h1.cnd-titre-bloc { line-height: 1.4em; }
+
+/* Taille par défaut d'un titre de niveau 2, quand l'éditeur d'origine n'en
+   imposait pas. */
+.cnd-titre-bloc--h2 { font-size: 25px; }
+
+@media (min-width: 922px) {
+  .cnd-titre-bloc--h2 { font-size: 32px; }
+}
+
+/* --- bouton posé dans une page ------------------------------------------- */
+/* Les boutons des pages s'éclaircissent au survol, contrairement à ceux de
+   l'en-tête et du pied. C'était déjà le cas sous WordPress. */
+.cnd-bloc-bouton {
+  text-align: center;
+}
+
+.cnd-bloc-bouton .cnd-bouton:hover,
+.cnd-bloc-bouton .cnd-bouton:focus {
+  background-color: var(--cnd-corail);
+}
+
+.cnd-bouton--lg {
+  font-size: 18px;
+}
+
+/* --- liste à icônes ------------------------------------------------------ */
+.cnd-liste-icones {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cnd-liste-icones li {
+  display: flex;
+  align-items: center;
+}
+
+/* L'écart de 10 px entre deux entrées est partagé entre la fin de l'une et le
+   début de la suivante : la dernière n'a donc pas de marge basse. */
+.cnd-liste-icones li:not(:last-child) {
+  padding-bottom: 5px;
+}
+
+.cnd-liste-icones li + li {
+  margin-top: 5px;
+}
+
+/* L'icône occupe la boîte de l'ancien glyphe : 1,25 em pour un tracé d'1 em,
+   plus 13 px de retrait avant le texte. Le tracé se cale à gauche de sa boîte,
+   comme le faisait le caractère de la police d'icônes dans un texte aligné à
+   gauche. */
+.cnd-liste-icones__icone {
+  display: flex;
+  flex-shrink: 0;
+  width: calc(1.25em + 13px);
+  padding-right: 13px;
+  color: var(--cnd-turquoise);
+  font-size: 30px;
+}
+
+.cnd-liste-icones__icone .cnd-icone {
+  display: block;
+}
+
+.cnd-liste-icones__texte {
+  padding-left: 5px;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-texte);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 44px;
+}
+
+/* ==========================================================================
+   Variantes de grille et de blocs
+   --------------------------------------------------------------------------
+   Réglages que l'éditeur d'origine posait élément par élément. Ils sont
+   regroupés ici en modificateurs réutilisables.
+   ========================================================================== */
+.cnd-section--marge-30 { padding: 30px; }
+
+.cnd-col__interne--centre { justify-content: center; }
+.cnd-col__interne--marge-20 { padding: 20px; }
+
+@media (max-width: 767px) {
+  .cnd-col--sans-mobile { display: none; }
+  .cnd-bloc--sans-mobile { display: none; }
+}
+
+.cnd-titre-bloc--33 { font-size: 33px; }
+
+/* Texte de 16 px. La plupart des blocs retombent à 14 px sous 768 px ; un
+   seul (la présentation des offres) garde sa taille : on distingue les deux. */
+.cnd-texte--16,
+.cnd-texte--16-fixe { font-size: 16px; }
+.cnd-texte--justifie { text-align: justify; }
+
+@media (max-width: 767px) {
+  .cnd-texte--16 { font-size: 14px; }
+}
+
+.cnd-bloc-bouton { padding: 20px; }
+.cnd-bloc-bouton--cadre { padding: 40px; }
+
+/* ==========================================================================
+   Apparition au défilement
+   --------------------------------------------------------------------------
+   Sept éléments du site glissent en place quand ils entrent dans le champ de
+   vision. Le bloc reste invisible avant son tour, exactement comme sous
+   Elementor. Le déclenchement est dans public/js/site.js.
+   ========================================================================== */
+.cnd-apparition {
+  visibility: hidden;
+}
+
+.cnd-apparition--jouee {
+  visibility: visible;
+  animation-duration: 1.25s;
+  animation-fill-mode: both;
+}
+
+.cnd-apparition--gauche.cnd-apparition--jouee { animation-name: cnd-fondu-gauche; }
+.cnd-apparition--fondu.cnd-apparition--jouee { animation-name: cnd-fondu; }
+
+@keyframes cnd-fondu-gauche {
+  from { opacity: 0; transform: translate3d(-100%, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes cnd-fondu {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cnd-apparition { visibility: visible; }
+  .cnd-apparition--jouee { animation: none; }
+}
+
+/* Les blocs à effet de survol d'Elementor restaient posés sur une couche
+   composée par la carte graphique, ce qui adoucit très légèrement une image
+   réduite. On reprend la même couche, sur le même élément, pour que le rendu
+   soit au pixel près le même. */
+.cnd-image--couche {
+  transform: perspective(1px);
+}
+
+.cnd-texte--marge-20 { padding: 20px; }
+
+/* --- carte --------------------------------------------------------------- */
+.cnd-carte iframe {
+  display: block;
+  width: 100%;
+  height: 387px;
+  border: 0;
+}
+
+.cnd-section--marge-15 { padding: 15px; }
+.cnd-section--marge-16 { padding: 16px; }
+.cnd-col__interne--centre-h { align-items: center; }
+
+.cnd-titre-bloc--18 { font-size: 18px; line-height: 1.3em; }
+.cnd-titre-bloc--gauche { text-align: start; }
+
+/* Quatre des cinq titres d'article ont un interligne un peu plus large sur
+   mobile. Le cinquième ne l'a pas : c'était déjà le cas sous WordPress. */
+@media (max-width: 767px) {
+  .cnd-titre-bloc--18-aere { line-height: 1.4em; }
+}
+
+/* Bande d'article de presse : un fond très légèrement cassé et 8 px d'air
+   au-dessus et en dessous. */
+.cnd-section--article {
+  margin: 8px 0;
+  background-color: #fdfdfd;
+}
+
+/* ==========================================================================
+   Galerie
+   --------------------------------------------------------------------------
+   Deux colonnes, une seule en dessous de 768 px. Les photos vont deux par deux
+   et ont la même proportion dans chaque rangée : une grille suffit à retrouver
+   la disposition que le JavaScript d'Elementor calculait.
+   ========================================================================== */
+.cnd-galerie {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .cnd-galerie { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 1025px) {
+  .cnd-galerie { gap: 15px; }
+}
+
+.cnd-galerie img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cnd-section--air-20 { margin: 20px 0; }
+.cnd-section--air-25 { margin: 25px 0; }
+.cnd-section--air-bas-20 { margin: 0 0 20px; }
+
+/* Bouton sans cadre : la variante par défaut du widget, sans marge autour. */
+.cnd-bloc-bouton--nu { padding: 0; }
+
+/* ==========================================================================
+   Portrait
+   --------------------------------------------------------------------------
+   Une photo et un prénom : les membres de l'équipe. La photo se soulève
+   légèrement au survol, comme sur le site d'origine.
+   ========================================================================== */
+.cnd-portrait {
+  text-align: center;
+}
+
+.cnd-portrait__image {
+  display: inline-block;
+  width: 86%;
+  margin: 0 auto 15px;
+}
+
+@media (max-width: 1024px) {
+  .cnd-portrait__image { width: 95%; }
+}
+
+.cnd-portrait__image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  line-height: 0;
+  transition: transform 0.3s ease-out;
+}
+
+.cnd-portrait__image img:hover {
+  transform: translateY(-8px);
+}
+
+.cnd-portrait__nom {
+  margin: 0;
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-titre);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3em;
+}
+
+@media (min-width: 922px) {
+  .cnd-portrait__nom { font-size: 26px; }
+}
+
+/* Colonne vide : elle sert de gouttière, elle ne doit rien occuper d'autre. */
+.cnd-col__interne--vide { padding: 0; }
+
+.cnd-section--air-24 { margin: 24px 0; }
+
+/* Dans le corps d'article du thème, les titres gardent 20 px sous eux. */
+.cnd-corps-page .cnd-portrait__nom { margin-bottom: 20px; }
+
+/* Description sous un portrait. La marge est préfixée pour passer devant la
+   marge de paragraphe du corps d'article ; la taille reste au même niveau de
+   précision que ses variantes. */
+.cnd-portrait .cnd-portrait__texte {
+  margin: 0;
+}
+
+.cnd-portrait__texte {
+  color: var(--cnd-texte);
+  font-family: var(--cnd-police-texte);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .cnd-portrait__texte { font-size: 16px; }
+}
+
+/* Titre entouré de 19 px de marge et 20 px de retrait, comme le réglage de
+   l'éditeur d'origine. */
+.cnd-encadre-19 { margin: 19px; padding: 20px; }
+
+/* Section imbriquée dans une colonne : même grille, sans largeur maximale
+   puisque la colonne la borne déjà. */
+.cnd-sous-section__contenu {
+  display: flex;
+}
+
+@media (max-width: 1024px) {
+  .cnd-sous-section__contenu { flex-wrap: wrap; }
+}
+
+.cnd-section--marge-20 { padding: 20px; }
+.cnd-col__interne--marge-30 { padding: 30px; }
+.cnd-col__interne--bas { justify-content: flex-end; }
+
+/* Largeurs de la vignette d'un portrait, telles que l'éditeur d'origine les
+   posait boîte par boîte. */
+.cnd-portrait__image--86 { width: 86%; }
+.cnd-portrait__image--100 { width: 100%; }
+.cnd-portrait__image--100-62 { width: 100%; }
+
+@media (max-width: 1024px) {
+  .cnd-portrait__image--86 { width: 95%; }
+  .cnd-portrait__image--100-62 { width: 62%; }
+}
+
+/* Certaines vignettes rétrécissent de moitié sur mobile, d'autres non :
+   le suffixe `-50` marque les premières. */
+@media (max-width: 767px) {
+  .cnd-portrait__image--50-mobile { width: 50%; }
+}
+
+/* Description sans taille imposée : celle du texte courant. */
+.cnd-portrait__texte--defaut { font-size: inherit; }
+
+@media (max-width: 767px) {
+  .cnd-portrait__texte--defaut { font-size: 15px; }
+}
+
+/* Bouton qui grossit au survol. */
+.cnd-bouton--grossit {
+  transition: transform 0.3s;
+}
+
+.cnd-bouton--grossit:hover,
+.cnd-bouton--grossit:focus {
+  transform: scale(1.1);
+}
+
+/* Espace réservé, à la place du widget « spacer ». */
+.cnd-espace { height: 50px; }
+
+/* Bouton laissé à la couleur par défaut de l'éditeur d'origine : turquoise,
+   coins à peine arrondis. */
+.cnd-bouton--defaut {
+  border-radius: 4px;
+  background-color: var(--cnd-turquoise);
+}
+
+.cnd-section--air-30 { margin: 30px 0; }
+.cnd-section--rose { background-color: #ffbeb7; }
+.cnd-col__interne--haut { justify-content: flex-start; }
+.cnd-espace--19 { height: 19px; }
+.cnd-texte--centre { text-align: center; }
+.cnd-texte--clair { color: var(--cnd-blanc); }
+
+@media (max-width: 767px) {
+  .cnd-titre-bloc--33-26 { font-size: 26px; }
+  .cnd-col__interne--haut { justify-content: flex-end; }
+  .cnd-texte--aere-mobile { font-size: 15px; line-height: 1.9em; }
+}
+
+@media (max-width: 1024px) {
+  .cnd-col__interne--haut { justify-content: flex-end; }
+}
+
+.cnd-section--air-13 { margin: 13px 0; }
+.cnd-col__interne--decale-20 { margin: 20px; }
+
+/* ==========================================================================
+   Coordonnées
+   --------------------------------------------------------------------------
+   Le bloc encadré de la page « Nous contacter » : téléphone et adresse,
+   centrés dans un cadre corail.
+   ========================================================================== */
+.cnd-coordonnees {
+  margin: 0;
+  padding: 0;
+  border: 3px solid var(--cnd-corail);
+  list-style: none;
+}
+
+.cnd-coordonnees li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Filet gris entre deux entrées, collé au bas de la première. */
+.cnd-coordonnees li:not(:last-child) {
+  padding-bottom: 4.5px;
+}
+
+.cnd-coordonnees li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  border-top: 2px solid #ddd;
+}
+
+.cnd-coordonnees li + li {
+  margin-top: 4.5px;
+}
+
+.cnd-coordonnees__icone {
+  display: flex;
+  flex-shrink: 0;
+  width: calc(1.25em + 11px);
+  padding-right: 11px;
+  color: var(--cnd-turquoise);
+  font-size: 22px;
+}
+
+.cnd-coordonnees__icone .cnd-icone {
+  display: block;
+}
+
+.cnd-coordonnees__texte {
+  padding-left: 5px;
+  text-align: center;
+  color: var(--cnd-turquoise);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* --- coordonnées cliquables (remplacent le formulaire) ------------------- */
+.cnd-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cnd-contact li {
+  display: flex;
+  align-items: center;
+}
+
+.cnd-contact__icone {
+  display: flex;
+  flex-shrink: 0;
+  width: 1.25em;
+  margin-right: 11px;
+  color: var(--cnd-corail);
+  font-size: 24px;
+}
+
+.cnd-contact__icone .cnd-icone {
+  display: block;
+}
+
+.cnd-contact a {
+  color: var(--cnd-turquoise);
+  font-family: var(--cnd-police-texte);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cnd-contact a:hover,
+.cnd-contact a:focus {
+  color: var(--cnd-corail);
+  text-decoration: underline;
+}
+
+.cnd-section--pale { background-color: #fdfdfd; }
+.cnd-col--16 { width: 16%; }
+.cnd-col--20 { width: 20%; }
+.cnd-col--79 { width: 79.666%; }
+.cnd-col--83 { width: 83.666%; }
+.cnd-titre-bloc--25 { font-size: 25px; }
+.cnd-texte--17 { font-size: 17px; }
+
+@media (max-width: 767px) {
+  .cnd-titre-bloc--25-20 { font-size: 20px; line-height: 1.4em; }
+  .cnd-titre-bloc--33-28 { font-size: 28px; }
+}
+
+.cnd-section--gris { background-color: #f9f9f9; }
+
+.cnd-section--marge-60 { padding: 60px; }
+.cnd-col--4 { width: 4.874%; }
+.cnd-col--5 { width: 5%; }
+.cnd-col--8 { width: 8%; }
+.cnd-col--91 { width: 91.665%; }
+.cnd-col--92 { width: 91.999%; }
+.cnd-col--94 { width: 94.999%; }
+.cnd-col--95 { width: 95.125%; }
+.cnd-image--gauche { text-align: start; }
+.cnd-liste-icones__texte--34 { line-height: 34px; }
+.cnd-liste-icones--aere li:not(:last-child) { padding-bottom: 10px; }
+.cnd-liste-icones--aere li + li { margin-top: 10px; }
+.cnd-texte--17-44 { font-size: 17px; line-height: 44px; }
+.cnd-texte--16-33 { font-size: 16px; line-height: 33px; }
+/* Préfixé pour passer devant la marge de paragraphe du corps d'article. */
+.cnd-corps-page .cnd-texte--16-33 p,
+.cnd-texte--16-33 p { margin-bottom: 20px; }
+
+@media (max-width: 767px) {
+  .cnd-texte--16-33 { font-size: 14px; }
+}
+
+/* Dans le corps d'article du thème, les liens posés au fil du texte sont
+   soulignés. */
+.cnd-corps-page .cnd-texte a,
+.cnd-corps-page .cnd-liste-icones__texte a {
+  text-decoration: underline;
+}
+
+/* Elementor transformait en bloc tout lien posé dans une liste à icônes, même
+   au milieu d'une phrase : le lien passe donc à la ligne. Comportement d'origine
+   conservé — il se voit sur « Notre philosophie ». */
+.cnd-liste-icones li a {
+  display: flex;
 }

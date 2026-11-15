@@ -163,7 +163,7 @@ texte (extension Complianz absente), et la galerie photos n'ouvre pas de lightbo
 
 **➜ À ce stade le site est en ligne, statique, visuellement identique, encore habillé d'Elementor.**
 
-### Phase C — Suppression d'Elementor / WordPress  *(phase 2 : HTML + CSS + JS purs)* — en cours
+### Phase C — Suppression d'Elementor / WordPress  *(phase 2 : HTML + CSS + JS purs)* — ✅ FAIT
 
 Méthode : **une page à la fois**, chaque page repassant par le diff pixel de B2 avant d'être validée.
 On commence par header/footer (gain sur les 16 pages), puis les pages de la plus simple à la plus complexe.
@@ -173,16 +173,47 @@ Les fragments réécrits à la main portent un marqueur en première ligne
 
 | # | Tâche | État |
 |---|---|---|
-| C1 | Extraire les vrais tokens de design (couleurs pastel, typo fun-kids / pile système, espacements, breakpoints 767 / 921 / 1024) dans `src/styles/tokens.css` + `base.css` | partiel — tokens et base posés dans `public/css/site.css` au fil des blocs réécrits |
-| C2 | Remplacer les primitives de mise en page Elementor (`section` / `container` / `column`) par une micro-grille CSS maison reproduisant la largeur « boxed » (1140 px), les gouttières et les règles d'empilement responsive |  |
-| C3 | Réécrire les widgets en HTML sémantique + CSS composant : `heading`, `text-editor`, `image`, `image-box`, `icon-list`, `icon`, `button`, `spacer` |  |
+| C1 | Extraire les vrais tokens de design (couleurs pastel, typo fun-kids / pile système, espacements, breakpoints 767 / 921 / 1024) dans `src/styles/tokens.css` + `base.css` | ✅ FAIT — tokens, socle et composants dans `public/css/site.css` |
+| C2 | Remplacer les primitives de mise en page Elementor (`section` / `container` / `column`) par une micro-grille CSS maison reproduisant la largeur « boxed » (1140 px), les gouttières et les règles d'empilement responsive | ✅ FAIT — `.cnd-section` / `.cnd-col` reproduisent la grille d'Elementor (1140 px, gouttières de 10 px, empilement sous 768 px) |
+| C3 | Réécrire les widgets en HTML sémantique + CSS composant : `heading`, `text-editor`, `image`, `image-box`, `icon-list`, `icon`, `button`, `spacer` | ✅ FAIT — image, titre, texte, bouton, espace, liste à icônes, portrait (ex-`image-box`) |
 | C4 | **Header** : nav pure HTML/CSS, sous-menus en CSS au survol (desktop) + ~20 lignes de JS vanilla (mobile), sticky en CSS ➜ supprime `nav-menu`, SmartMenus, jQuery | ✅ FAIT — `src/fragments/header.html` + `public/js/site.js` (2,9 Ko) |
 | C5 | **Footer** : grille 5 colonnes + variante mobile, en CSS | ✅ FAIT — `src/fragments/footer.html` |
 | C6 | **Icônes** : Font Awesome + eicons + police custom `creche` ➜ **SVG inline** (supprime 4 fichiers de police + 2 CSS) | ✅ FAIT — `tools/icons_to_svg.py` ➜ `src/fragments/icons-sprite.html` (5,3 Ko) |
-| C7 | **Galerie** : masonry en CSS (`columns`) + lightbox vanilla (~40 lignes) ➜ supprime e-gallery, Swiper, la lightbox Elementor |  |
-| C8 | **Formulaire de contact** : solution compatible statique (voir section 4) |  |
-| C9 | Suppression des bundles : jQuery, jQuery-UI, Astra JS, Elementor frontend + Pro, le CSS de 377 Ko. **~1,1 Mo de CSS/JS ➜ ~40 Ko attendus** |  |
+| C7 | **Galerie** : masonry en CSS (`columns`) + lightbox vanilla (~40 lignes) ➜ supprime e-gallery, Swiper, la lightbox Elementor | ✅ FAIT — grille CSS de deux colonnes ; pas de visionneuse, comme sur le site d'origine |
+| C8 | **Formulaire de contact** : solution compatible statique (voir section 4) | ✅ FAIT — coordonnées cliquables (mailto, tel, adresse) |
+| C9 | Suppression des bundles : jQuery, jQuery-UI, Astra JS, Elementor frontend + Pro, le CSS de 377 Ko. **~1,1 Mo de CSS/JS ➜ ~40 Ko attendus** | ✅ FAIT — 1,7 Mo de CSS + 976 Ko de JS + 816 Ko de modules + 3 Mo de polices d'icônes retirés ; il reste 44 Ko de CSS et 5 Ko de JS |
 | C10 | Analytics : retrait de l'UA mort (ou remplacement GA4 — voir questions) | ✅ FAIT (phase A) — bascule GA4 |
+
+
+#### Vérification de fin de phase 2
+
+| Contrôle | Résultat |
+|---|---|
+| Diff pixel — 16 pages × 3 largeurs | **40/48 sous 0,02 %**, **44/48 sous 0,1 %** ; hauteurs identiques sur les 48 captures sauf « Nous contacter » |
+| Texte visible des pages | **15/16 identiques** (la 16e est « Nous contacter », dont le formulaire est remplacé) |
+| Métadonnées `<head>` | **0 différence sur 16 pages** |
+| Requêtes en échec · erreurs JS · liens morts | **0 · 0 · 0** |
+| Menus, burger, galerie, carte, coordonnées | **5/5 comportements identiques** |
+| Build en sous-dossier (`BASE_PATH`) | URLs préfixées, aucun chemin absolu oublié |
+
+Les écarts restants, tous documentés :
+
+- **Nous contacter** : le formulaire est volontairement remplacé par les coordonnées
+  cliquables (décision validée). Le haut de la page reste identique au pixel près.
+- **Découvrir en photos** : 0,04 à 0,12 % de pixels — les photos sont de vraies balises
+  `<img>` là où Elementor les posait en image de fond ; le rééchantillonnage diffère,
+  invisible à l'œil.
+- **Notre philosophie** : 0,03 % de pixels d'anticrénelage sur les petites icônes.
+
+#### Ce qui a disparu
+
+| | Avant | Après |
+|---|---|---|
+| CSS | 1,7 Mo (Astra + Elementor + 20 feuilles de widgets) | **44 Ko** (`site.css`) |
+| JS | 976 Ko (jQuery, jQuery-UI, Astra, Elementor, Pro) | **5 Ko** (`site.js`) |
+| Modules chargés à l'exécution | 816 Ko (29 fichiers Elementor) | **0** |
+| Polices d'icônes | 3 Mo (Font Awesome, eicons, police maison) | **0** — 5,3 Ko de SVG |
+| Polices de texte | Funkids | Funkids |
 
 ### Phase D — Finitions
 
