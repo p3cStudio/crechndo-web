@@ -130,6 +130,15 @@ SEO: dict[str, tuple[str, str]] = {
         "Éditeur, hébergeur, confidentialité et droits d'auteur du site de la "
         "micro-crèche Crèch'n'do, 54 rue Henri Barbusse à Saint-Laurent-Blangy.",
     ),
+    # Page de proximité, écrite à la main : elle n'existait pas sous
+    # WordPress. Elle répond à « crèche Arras » (1 278 impressions sur
+    # 12 mois, position moyenne 18), la requête la plus demandée du site.
+    "micro-creche-arras": (
+        "Micro-crèche près d'Arras : 10 places, 7h-19h",
+        "Vous cherchez une crèche à Arras ? CRECH'N'DO accueille 10 enfants de "
+        "10 semaines à 4 ans à Saint-Laurent-Blangy, à 5 minutes du centre, de "
+        "7h à 19h.",
+    ),
 }
 
 # Bloc écrit en dur dans l'en-tête du thème : c'est lui qui écrasait les titres
@@ -149,10 +158,74 @@ DESCRIPTION_EN_DUR = re.compile(
 # Le site de préproduction, resté dans les métadonnées et les données structurées.
 RECETTE = "delphacrea.crechndo.org"
 
+# Les balises Twitter ne servent qu'à X, où la crèche n'a pas de compte.
+# Facebook, Instagram, WhatsApp et LinkedIn lisent Open Graph, qu'on garde.
+TWITTER = re.compile(r'<meta (?:name|property)="twitter:[^"]*"[^>]*>\s*', re.S)
+
+
+# --- la fiche de l'établissement ------------------------------------------
+# Ces informations alimentent les données structurées que Google lit pour
+# comprendre où se trouve la crèche et ce qu'elle propose. Elles étaient
+# absentes : le bloc ne disait ni l'adresse, ni le téléphone, ni la zone
+# desservie.
+ADRESSE = {
+    "@type": "PostalAddress",
+    "streetAddress": "54 rue Henri Barbusse",
+    "postalCode": "62223",
+    "addressLocality": "Saint-Laurent-Blangy",
+    "addressRegion": "Hauts-de-France",
+    "addressCountry": "FR",
+}
+
+# Relevé sur OpenStreetMap pour le 54 rue Henri Barbusse.
+POSITION = {"@type": "GeoCoordinates", "latitude": 50.305188, "longitude": 2.818935}
+
+TELEPHONE = "+33695176338"
+COURRIEL = "contact@crechndo.org"
+
+# Les communes d'où viennent les familles. Elles disent à Google quelle zone la
+# crèche dessert, ce que l'adresse seule ne suffit pas à établir.
+COMMUNES = [
+    "Saint-Laurent-Blangy",
+    "Arras",
+    "Saint-Nicolas-lez-Arras",
+    "Athies",
+    "Feuchy",
+    "Fampoux",
+    "Gavrelle",
+    "Roeux",
+]
+
+# Les comptes officiels de la crèche. Google s'en sert pour relier le site à la
+# fiche de l'établissement.
+RESEAUX = [
+    "https://www.facebook.com/crechndo",
+    "https://www.instagram.com/crechndo",
+]
+
 
 def echappe(texte: str) -> str:
     """Encode ce qui doit l'être dans un attribut HTML."""
     return texte.replace("&", "&amp;").replace('"', "&quot;").replace("'", "&#039;")
+
+
+# Le logo déclaré dans les données structurées pointait vers un chemin WordPress
+# qui n'existe plus. On le remplace par le fichier réellement servi.
+LOGO = "https://crechndo.org/img/2022/10/logo-crech-n-do-saint-laurent-blangy-creche-1.png"
+
+
+def complete_etablissement(noeud: dict) -> None:
+    """Ajoute au nœud ChildCare ce qu'il faut pour un établissement local."""
+    logo = noeud.get("logo")
+    if isinstance(logo, dict):
+        logo["url"] = logo["contentUrl"] = LOGO
+        logo["width"], logo["height"] = 360, 120
+    noeud["address"] = ADRESSE
+    noeud["geo"] = POSITION
+    noeud["telephone"] = TELEPHONE
+    noeud["email"] = COURRIEL
+    noeud["areaServed"] = [{"@type": "City", "name": c} for c in COMMUNES]
+    noeud["sameAs"] = RESEAUX
 
 
 def applique(slug: str, head: str, titre: str, description: str) -> str:
@@ -164,12 +237,11 @@ def applique(slug: str, head: str, titre: str, description: str) -> str:
     # Le titre et la description de la page, dans les trois familles de balises.
     # Deux pages n'avaient aucune description : on la pose alors après le titre.
     head = re.sub(r"<title>.*?</title>", f"<title>{echappe(titre)}</title>", head, flags=re.S)
+    head = TWITTER.sub("", head)
     for attribut, nom, valeur in (
         ("name", "description", description),
         ("property", "og:description", description),
-        ("name", "twitter:description", description),
         ("property", "og:title", titre),
-        ("name", "twitter:title", titre),
     ):
         balise = f'<meta {attribut}="{nom}" content="{echappe(valeur)}" />'
         motif = rf'<meta {attribut}="{re.escape(nom)}" content="[^"]*"\s*/?>'
@@ -195,20 +267,24 @@ def applique(slug: str, head: str, titre: str, description: str) -> str:
     head = head.replace(chr(92) * 2 + "'", "'")
 
     # Les données structurées portaient elles aussi le titre générique du site,
-    # sur les nœuds WebPage et Article. On les relit en JSON plutôt qu'à coups
-    # d'expressions régulières : le bloc est trop imbriqué pour ça.
+    # sur les nœuds WebPage et Article, et la fiche de l'établissement ne disait
+    # ni l'adresse ni le téléphone. On relit le bloc en JSON plutôt qu'à coups
+    # d'expressions régulières : il est trop imbriqué pour ça.
     def recale(bloc: re.Match) -> str:
         try:
             donnees = json.loads(bloc.group(1))
         except ValueError:
             return bloc.group(0)
         for noeud in donnees.get("@graph", []):
-            if noeud.get("@type") in ("WebPage", "Article"):
+            genre = noeud.get("@type")
+            if genre in ("WebPage", "Article"):
                 for champ in ("name", "headline"):
                     if champ in noeud:
                         noeud[champ] = titre
                 if "description" in noeud:
                     noeud["description"] = description
+            elif isinstance(genre, list) and "ChildCare" in genre:
+                complete_etablissement(noeud)
         return bloc.group(0).replace(
             bloc.group(1), json.dumps(donnees, ensure_ascii=False, separators=(",", ":")))
 

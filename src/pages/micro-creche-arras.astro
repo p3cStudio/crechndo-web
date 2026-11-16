@@ -1,0 +1,19 @@
+---
+// Page écrite à la main (elle n'existait pas sous WordPress) : page de
+// proximité pour la requête « crèche Arras ».
+// Le contenu est dans src/fragments/micro-creche-arras-content.html,
+// les métadonnées dans src/fragments/micro-creche-arras-head.html
+// (régénérables par tools/seo.py).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import head from '../fragments/micro-creche-arras-head.html?raw';
+import content from '../fragments/micro-creche-arras-content.html?raw';
+import scripts from '../fragments/micro-creche-arras-scripts.html?raw';
+import { withBase } from '../lib/withBase.js';
+
+const bodyClass = "";
+---
+<BaseLayout bodyClass={bodyClass} slug="micro-creche-arras">
+  <Fragment slot="head" set:html={withBase(head)} />
+  <Fragment set:html={withBase(content)} />
+  <Fragment slot="scripts" set:html={withBase(scripts)} />
+</BaseLayout>

@@ -21,6 +21,11 @@ Le rendu est vérifié page par page contre le site d'origine : diff pixel sur
 16 pages × 3 largeurs, comparaison du texte visible, contrôle des liens, des requêtes
 et des comportements. Les outils sont décrits plus bas.
 
+Le site compte **17 pages** : les 16 reprises de WordPress, plus
+[`/micro-creche-arras/`](src/fragments/micro-creche-arras-content.html), écrite à la
+main et sans original — les outils qui comparent à WordPress n'en tiennent donc pas
+compte, contrairement à `npm run check:seo`.
+
 ## Structure
 
 ```
@@ -86,7 +91,7 @@ main et portent en première ligne le marqueur `<!-- réécrit à la main (phase
 | `npm run mirror` | Aspire le site d'origine dans `tools/.cache/` (pages + assets). `--force` pour tout retélécharger. |
 | `npm run fragments` | Transforme le cache en `public/` + fragments + pages `.astro`. |
 | `npm run check:html` | Compare le HTML généré à celui du site d'origine, balise à balise. |
-| `npm run check:visuel` | **Diff pixel** : 16 pages × 3 largeurs, original contre version générée. |
+| `npm run check:visuel` | **Diff pixel** : 16 pages × 3 largeurs, original contre version générée. Passer des slugs en arguments pour n'en vérifier que certaines, et `LOCAL=http://localhost:4322` si le serveur n'est pas sur le port par défaut. |
 | `npm run check:runtime` | Requêtes en échec, erreurs JS, liens internes morts. |
 | `npm run check:interactions` | Menus, burger, galerie, carte, coordonnées : même comportement qu'avant ? |
 | `npm run check:textes` | Compare le **texte visible** de chaque page à celui du site d'origine. |
@@ -159,10 +164,25 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   (extension Complianz absente) et a été reproduit à l'identique.
 - **Analytics** : le site d'origine charge un vieux tag Universal Analytics qui sert
   d'amorce au tag GA4 `G-HZ07V9F2TE`. Ici GA4 est posé directement.
+- **Réseaux sociaux** : les balises `twitter:` ont été retirées, la crèche n'ayant pas
+  de compte X. Facebook, Instagram, WhatsApp et LinkedIn lisent Open Graph, conservé.
+  Le compte Instagram reste à ajouter dans `RESEAUX`, au début de
+  [`tools/seo.py`](tools/seo.py).
+- **Fiche de l'établissement** : adresse, position, téléphone, courriel et communes
+  desservies sont déclarés dans les données structurées (`tools/seo.py`). C'est ce que
+  Google lit pour relier le site à la fiche Google Business.
 - **Titres et descriptions** : le site d'origine servait deux jeux de balises SEO,
   dont un écrit en dur dans le thème qui écrasait les titres propres à chaque page.
-  Le bloc en dur est retiré ; les textes des 16 pages sont dans
+  Le bloc en dur est retiré ; les textes des 17 pages sont dans
   [`tools/seo.py`](tools/seo.py), à modifier là puis `npm run seo`.
+- **Page de proximité** : `/micro-creche-arras/` répond à « crèche Arras »,
+  la requête la plus demandée du site (1 278 impressions sur 12 mois, position
+  moyenne 18). Elle est reliée depuis « Le lieu », « Nous situer » et le plan du
+  site, mais **pas depuis le menu**, qui reste celui d'origine.
+- **Pictogrammes** : les noms de fichiers hérités de WordPress ne décrivent pas
+  leur contenu (`…CRECHE-ARRAS.webp` est un symbole €, `…ECO-RESPONSABLE.webp`
+  une calculatrice, `…ATHIES-FEUCHY.webp` un calendrier). Les ouvrir avant de
+  les réutiliser.
 - La galerie photos n'ouvre pas de visionneuse : c'est déjà le cas sur le site
   d'origine.
 - **Lien dans une liste à icônes** : sur « Notre philosophie », le lien vers Croc La Vie
