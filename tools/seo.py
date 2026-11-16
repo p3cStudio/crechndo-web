@@ -121,9 +121,9 @@ SEO: dict[str, tuple[str, str]] = {
     ),
     "politique-de-cookies-ue": (
         "Politique de cookies | Crèch'n'do",
-        "Informations sur les cookies déposés par le site de la micro-crèche "
-        "Crèch'n'do à Saint-Laurent-Blangy, près d'Arras, et sur la façon de "
-        "les refuser.",
+        "Le site de la micro-crèche Crèch'n'do ne dépose aucun cookie et "
+        "n'utilise aucun outil de mesure d'audience. Seule la carte Google Maps "
+        "fait exception.",
     ),
     "mentions-legales": (
         "Mentions légales | Crèch'n'do",
@@ -138,6 +138,15 @@ SEO: dict[str, tuple[str, str]] = {
         "Vous cherchez une crèche à Arras ? CRECH'N'DO accueille 10 enfants de "
         "10 semaines à 4 ans à Saint-Laurent-Blangy, à 5 minutes du centre, de "
         "7h à 19h.",
+    ),
+    # Une page pour les cinq villages, et non une par village : sur 12 mois,
+    # « athies », « feuchy », « gavrelle » et « roeux » totalisent zéro
+    # impression, et « fampoux » 39. La demande ne nourrit pas cinq pages.
+    "micro-creche-communes-rurales": (
+        "Crèche à Athies, Feuchy, Fampoux, Gavrelle et Roeux",
+        "Votre village n'a pas de crèche ? CRECH'N'DO réserve une priorité "
+        "d'accueil aux enfants des communes rurales autour de "
+        "Saint-Laurent-Blangy, à moins de 6 km.",
     ),
 }
 
@@ -161,6 +170,18 @@ RECETTE = "delphacrea.crechndo.org"
 # Les balises Twitter ne servent qu'à X, où la crèche n'a pas de compte.
 # Facebook, Instagram, WhatsApp et LinkedIn lisent Open Graph, qu'on garde.
 TWITTER = re.compile(r'<meta (?:name|property)="twitter:[^"]*"[^>]*>\s*', re.S)
+
+# Google Analytics est retiré du site. L'exemption de consentement prévue par
+# la CNIL pour la mesure d'audience ne le couvre pas : l'éditeur réutilise les
+# données pour son propre compte. Plutôt qu'un bandeau de consentement, on
+# supprime le traceur — il pesait 178 Ko sur 334, et les arbitrages SEO se font
+# dans la Search Console, qui ne dépose rien sur le site.
+ANALYTICS = re.compile(
+    r"[ \t]*<!-- Google Analytics 4 -->\s*"
+    r'<script async src="https://www\.googletagmanager\.com/[^"]*"></script>\s*'
+    r"<script>.*?</script>\s*",
+    re.S,
+)
 
 
 # --- la fiche de l'établissement ------------------------------------------
@@ -238,6 +259,7 @@ def applique(slug: str, head: str, titre: str, description: str) -> str:
     # Deux pages n'avaient aucune description : on la pose alors après le titre.
     head = re.sub(r"<title>.*?</title>", f"<title>{echappe(titre)}</title>", head, flags=re.S)
     head = TWITTER.sub("", head)
+    head = ANALYTICS.sub("", head)
     for attribut, nom, valeur in (
         ("name", "description", description),
         ("property", "og:description", description),

@@ -21,10 +21,12 @@ Le rendu est vérifié page par page contre le site d'origine : diff pixel sur
 16 pages × 3 largeurs, comparaison du texte visible, contrôle des liens, des requêtes
 et des comportements. Les outils sont décrits plus bas.
 
-Le site compte **17 pages** : les 16 reprises de WordPress, plus
-[`/micro-creche-arras/`](src/fragments/micro-creche-arras-content.html), écrite à la
-main et sans original — les outils qui comparent à WordPress n'en tiennent donc pas
-compte, contrairement à `npm run check:seo`.
+Le site compte **18 pages** : les 16 reprises de WordPress, plus deux pages de
+proximité écrites à la main et sans original —
+[`/micro-creche-arras/`](src/fragments/micro-creche-arras-content.html) et
+[`/micro-creche-communes-rurales/`](src/fragments/micro-creche-communes-rurales-content.html).
+Les outils qui comparent à WordPress n'en tiennent donc pas compte, contrairement à
+`npm run check:seo`.
 
 ## Structure
 
@@ -159,26 +161,48 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   pouvait pas fonctionner sur un hébergement statique. Il est remplacé par les
   coordonnées cliquables — adresse électronique, téléphone, adresse postale. C'est le
   seul endroit du site qui s'écarte volontairement de l'original.
-- **Page « Politique de cookies »** : elle affiche le code court
-  `[cmplz-document type=…]` au lieu du texte. **Le bug vient du site d'origine**
-  (extension Complianz absente) et a été reproduit à l'identique.
-- **Analytics** : le site d'origine charge un vieux tag Universal Analytics qui sert
-  d'amorce au tag GA4 `G-HZ07V9F2TE`. Ici GA4 est posé directement.
+- **Page « Politique de cookies » réécrite** : elle affichait le code court
+  `[cmplz-document type=…]` au lieu du texte — bug hérité du site d'origine
+  (extension Complianz désinstallée), d'abord reproduit à l'identique. Le texte
+  décrit maintenant ce que le site fait réellement, vérifié dans un navigateur
+  après vidage des cookies : aucun cookie de première partie, pas de
+  `localStorage` ni de `sessionStorage`, aucun script tiers. **À revérifier si
+  l'on réintroduit un traceur, une vidéo intégrée ou un bouton social.**
+- **Analytics retiré** : le site d'origine chargeait un vieux tag Universal Analytics
+  qui amorçait le tag GA4 `G-HZ07V9F2TE`. Les deux sont supprimés. L'exemption de
+  consentement que la CNIL prévoit pour la mesure d'audience ne couvre pas Google
+  Analytics, dont l'éditeur réutilise les données pour son propre compte : il aurait
+  fallu un bandeau de consentement. Le traceur pesait **178 Ko** sur les 334 Ko de la
+  page d'accueil, et les arbitrages SEO se font dans la Search Console, qui ne dépose
+  rien sur le site. La purge est dans `ANALYTICS`, au début de
+  [`tools/seo.py`](tools/seo.py) ; `tools/build_fragments.py` n'injecte plus rien.
+- **reCAPTCHA retiré** : `/nous-contacter/` chargeait encore
+  `google.com/recaptcha/api.js` pour un formulaire qui n'existe plus depuis qu'il a été
+  remplacé par des coordonnées cliquables. Appel à Google à chaque visite, zéro usage.
+- **Un seul tiers subsiste** : la carte Google Maps intégrée sur `/nous-situer/`. C'est
+  la seule ressource externe chargée par le site, toutes pages confondues.
 - **Réseaux sociaux** : les balises `twitter:` ont été retirées, la crèche n'ayant pas
   de compte X. Facebook, Instagram, WhatsApp et LinkedIn lisent Open Graph, conservé.
-  Le compte Instagram reste à ajouter dans `RESEAUX`, au début de
+  Le compte Instagram est dans `RESEAUX`, au début de
   [`tools/seo.py`](tools/seo.py).
 - **Fiche de l'établissement** : adresse, position, téléphone, courriel et communes
   desservies sont déclarés dans les données structurées (`tools/seo.py`). C'est ce que
   Google lit pour relier le site à la fiche Google Business.
 - **Titres et descriptions** : le site d'origine servait deux jeux de balises SEO,
   dont un écrit en dur dans le thème qui écrasait les titres propres à chaque page.
-  Le bloc en dur est retiré ; les textes des 17 pages sont dans
+  Le bloc en dur est retiré ; les textes des 18 pages sont dans
   [`tools/seo.py`](tools/seo.py), à modifier là puis `npm run seo`.
-- **Page de proximité** : `/micro-creche-arras/` répond à « crèche Arras »,
+- **Pages de proximité** : `/micro-creche-arras/` répond à « crèche Arras »,
   la requête la plus demandée du site (1 278 impressions sur 12 mois, position
-  moyenne 18). Elle est reliée depuis « Le lieu », « Nous situer » et le plan du
-  site, mais **pas depuis le menu**, qui reste celui d'origine.
+  moyenne 18) ; `/micro-creche-communes-rurales/` couvre Athies, Feuchy, Fampoux,
+  Gavrelle et Roeux **en une seule page**, parce que quatre de ces cinq communes
+  totalisent zéro impression sur 12 mois — cinq pages se seraient partagé une
+  demande qui n'en nourrit pas une. Les deux sont reliées depuis « Le lieu »,
+  « Nous situer », « Présentation », « Offres » et le plan du site, et se citent
+  l'une l'autre, mais **pas depuis le menu**, qui reste celui d'origine.
+- **Distances** : celles de `/micro-creche-communes-rurales/` sont calculées à vol
+  d'oiseau entre les coordonnées de la crèche et celles relevées sur OpenStreetMap,
+  pas estimées. Les recalculer avant de les modifier.
 - **Pictogrammes** : les noms de fichiers hérités de WordPress ne décrivent pas
   leur contenu (`…CRECHE-ARRAS.webp` est un symbole €, `…ECO-RESPONSABLE.webp`
   une calculatrice, `…ATHIES-FEUCHY.webp` un calendrier). Les ouvrir avant de

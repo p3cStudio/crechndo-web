@@ -3,6 +3,16 @@
   Politique de cookies (UE) — HTML pur, sans Astra ni Elementor.
   Styles : public/css/site.css (sections « Socle de page », « Grille de contenu »
   et « Texte courant »).
+
+  La page affichait auparavant le code court [cmplz-document type=…] : le texte
+  était produit par l'extension Complianz, désinstallée du WordPress depuis
+  longtemps, et le site servait donc une page de cookies vide.
+
+  Le texte ci-dessous décrit ce que le site fait réellement, vérifié dans un
+  navigateur après vidage des cookies : aucun cookie de première partie, pas de
+  localStorage ni de sessionStorage, aucun script tiers. Seule la carte Google
+  Maps de /nous-situer/ est une ressource externe. À revérifier si l'on
+  réintroduit un traceur, une vidéo intégrée ou un bouton de réseau social.
 -->
 <div id="content" class="cnd-page">
   <div class="cnd-page__contenu cnd-page__contenu--encadre">
@@ -15,10 +25,40 @@
 
           <div class="cnd-corps-page">
 
-          <!-- Le texte de cette page était produit par l'extension Complianz,
-               absente du site depuis longtemps : le code court s'affiche tel
-               quel. On reproduit le site en l'état, sans le corriger. -->
-          <p>[cmplz-document type= »cookie-statement » region= »eu »]</p>
+          <p>Un cookie est un petit fichier déposé sur votre appareil lors de votre visite. Certains sont nécessaires au fonctionnement d&rsquo;un site, d&rsquo;autres servent à mesurer l&rsquo;audience ou à vous suivre d&rsquo;un site à l&rsquo;autre.</p>
+
+          <h2>Ce site ne dépose aucun cookie</h2>
+
+          <p>Le site crechndo.org ne dépose <b>aucun cookie</b> sur votre appareil, et n&rsquo;enregistre rien dans la mémoire locale de votre navigateur. Concrètement, cela signifie :</p>
+
+          <p>&#8211; <b>aucune mesure d&rsquo;audience</b> : le site n&rsquo;utilise ni Google Analytics ni aucun autre outil de statistiques ;<br />
+          &#8211; <b>aucun traceur publicitaire</b>, aucun outil de reciblage ;<br />
+          &#8211; <b>aucun bouton de réseau social</b> intégré : les liens vers Facebook et Instagram sont de simples liens, qui ne chargent rien tant que vous ne cliquez pas ;<br />
+          &#8211; <b>aucun compte, aucun identifiant de session</b> : le site est entièrement statique, il n&rsquo;y a rien à connecter.</p>
+
+          <p>C&rsquo;est pourquoi vous ne voyez pas de bandeau de consentement en arrivant : il n&rsquo;y a rien à vous faire accepter.</p>
+
+          <h2>La seule exception : la carte</h2>
+
+          <p>La page <a href="/nous-situer/">Nous situer</a> affiche une carte Google Maps pour vous indiquer le chemin. Cette carte est chargée depuis les serveurs de Google, et <b>Google peut déposer ses propres cookies</b> au moment où elle s&rsquo;affiche. Ces cookies ne nous appartiennent pas et nous n&rsquo;y avons pas accès ; ils relèvent des <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">règles de Google</a>.</p>
+
+          <p>C&rsquo;est la seule page du site concernée. Si vous préférez l&rsquo;éviter, notre adresse y figure aussi en toutes lettres : <b>54 rue Henri Barbusse, 62223 Saint-Laurent-Blangy</b>.</p>
+
+          <h2>Les formulaires sont ailleurs</h2>
+
+          <p>La <b>pré-inscription</b> et les <b>candidatures</b> ne se remplissent pas sur ce site : les boutons vous emmènent vers des services extérieurs, qui ont leurs propres règles en matière de cookies et de données. Vous les reconnaissez au changement d&rsquo;adresse dans la barre de votre navigateur.</p>
+
+          <p>Pour nous écrire sans passer par aucun formulaire, utilisez le téléphone ou le courriel indiqués sur la page <a href="/nous-contacter/">Nous contacter</a>.</p>
+
+          <h2>Refuser ou effacer les cookies</h2>
+
+          <p>Vous n&rsquo;avez rien à refuser sur ce site, puisqu&rsquo;il ne dépose rien. Pour les cookies déposés par la carte, ou par n&rsquo;importe quel autre site, vous pouvez à tout moment les effacer ou les bloquer depuis les réglages de votre navigateur, en général à la rubrique « Confidentialité », « Vie privée » ou « Données de navigation ». Bloquer les cookies tiers n&rsquo;empêchera pas ce site de fonctionner.</p>
+
+          <h2>Vos droits</h2>
+
+          <p>Pour toute question sur cette page ou sur vos données, écrivez-nous à <a href="mailto:contact@crechndo.org">contact@crechndo.org</a> ou par courrier à CRECH&rsquo;N&rsquo;DO, 54 rue Henri Barbusse, 62223 Saint-Laurent-Blangy. Voir aussi nos <a href="/mentions-legales/">mentions légales</a>.</p>
+
+          <p><i>Dernière mise à jour : 16 novembre 2026.</i></p>
 
           </div>
         </article>

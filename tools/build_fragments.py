@@ -31,7 +31,6 @@ FRAGMENTS = os.path.join(ROOT, "src", "fragments")
 PAGES_DIR = os.path.join(ROOT, "src", "pages")
 
 SITE = "https://crechndo.org"
-GA4_ID = "G-HZ07V9F2TE"
 
 # Bornes de découpe du <body>. Elles sont identiques sur les 16 pages
 # (vérifié par le script : toute page qui ne les contient pas fait échouer le build).
@@ -91,21 +90,16 @@ def ecrire(chemin: str, contenu: str) -> bool:
         fh.write(contenu)
     return True
 
-# Le vieux snippet Universal Analytics sert en réalité d'amorce au tag GA4
-# (Google charge gtag.js tout seul derrière). On pose donc GA4 directement :
-# même propriété, mêmes données, sans dépendre de ce pont hérité.
+# Le site n'embarque plus de mesure d'audience. L'exemption de consentement
+# prévue par la CNIL ne couvre pas Google Analytics, dont l'éditeur réutilise
+# les données pour son propre compte : il aurait fallu un bandeau. Le traceur
+# est donc retiré plutôt que consenti — il pesait 178 Ko sur 334, et les
+# données qui servent aux arbitrages viennent de la Search Console, qui ne
+# dépose rien sur le site.
+# Le vieux snippet Universal Analytics est supprimé sans rien mettre à la place.
 GA_LEGACY_RE = re.compile(
     r"[ \t]*<script>\s*\(function\(i,s,o,g,r,a,m\).*?</script>\s*", re.S
 )
-GA4_SNIPPET = f"""<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{GA4_ID}');
-</script>
-"""
 
 # Balises WordPress sans objet sur un site statique.
 PURGE = [
@@ -273,7 +267,7 @@ def split_page(slug: str, html: str) -> dict[str, str]:
     head_start = html.index(">", head_open) + 1
     head_end = html.index("</head>")
     head = html[head_start:head_end]
-    head = GA_LEGACY_RE.sub(GA4_SNIPPET, head)
+    head = GA_LEGACY_RE.sub("", head)
     head = rewrite_head(head)
     if SANS_WORDPRESS:
         head = sans_wordpress_head(head)
