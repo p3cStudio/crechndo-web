@@ -58,8 +58,17 @@ def contenu_de_page(body: str) -> str:
 
 
 def reecrite(slug: str) -> bool:
-    """La page a-t-elle déjà été réécrite à la main ?"""
+    """Le contenu de la page a-t-il été réécrit à la main ?"""
     return est_manuel(os.path.join(FRAGMENTS, f"{slug}-content.html"))
+
+
+def head_reecrit(slug: str) -> bool:
+    """Le <head> de la page a-t-il été réécrit à la main ?
+
+    Depuis la réécriture des titres (tools/seo.py), les métadonnées ne viennent
+    plus du site d'origine : les comparer n'aurait plus de sens.
+    """
+    return est_manuel(os.path.join(FRAGMENTS, f"{slug}-head.html"))
 
 
 def expected(slug: str) -> str:
@@ -70,6 +79,8 @@ def expected(slug: str) -> str:
     head = rewrite_head(GA_LEGACY_RE.sub("", head))
     if SANS_WORDPRESS:
         head = sans_wordpress_head(head)
+    if head_reecrit(slug):
+        head = ""
     if reecrite(slug):
         return head
     body = html[html.index(">", html.index("<body")) + 1:html.index("</body>")]
@@ -88,6 +99,8 @@ def actual(slug: str) -> str:
     head = re.sub(r"<!-- Google Analytics 4 -->.*?gtag\('config'[^<]*</script>", "", head, flags=re.S)
     head = re.sub(r"<!-- Notre feuille de style.*?-->", "", head, flags=re.S)
     head = re.sub(r'<link rel="stylesheet" href="[^"]*/css/site\.css"\s*/?>', "", head)
+    if head_reecrit(slug):
+        head = ""
     if reecrite(slug):
         return head
     body = html[html.index(">", html.index("<body")) + 1:html.index("</body>")]
@@ -103,7 +116,12 @@ def main() -> int:
             line for line in difflib.unified_diff(a, b, "origine", "généré", n=1, lineterm="")
             if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
         ]
-        portee = "métadonnées" if reecrite(slug) else "head + contenu"
+        if head_reecrit(slug) and reecrite(slug):
+            portee = "page entièrement réécrite"
+        elif reecrite(slug):
+            portee = "métadonnées"
+        else:
+            portee = "head + contenu"
         status = f"✓ identique ({portee})" if not diff else f"✗ {len(diff)} différences"
         print(f"{slug:40s} {status}")
         for line in diff[:40]:

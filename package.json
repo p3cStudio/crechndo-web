@@ -13,7 +13,9 @@
     "check:visuel": "node tools/visual_diff.mjs",
     "check:runtime": "node tools/check_runtime.mjs",
     "check:interactions": "node tools/check_interactions.mjs",
-    "check:textes": "node tools/check_textes.mjs"
+    "check:textes": "node tools/check_textes.mjs",
+    "seo": "python3 tools/seo.py",
+    "check:seo": "python3 tools/check_seo.py"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

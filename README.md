@@ -69,8 +69,10 @@ Le contenu de `dist/` est ce qui part en ligne. `npm run preview` le prévisuali
 - **Header ou footer, sur toutes les pages** : éditer `src/fragments/header.html` ou
   `src/fragments/footer.html`, une seule fois.
 - **Une page** : éditer `src/fragments/<slug>-content.html`.
-- **Le titre, la description, les métadonnées d'une page** :
-  `src/fragments/<slug>-head.html`.
+- **Le titre et la description d'une page** : la table `SEO` de
+  [`tools/seo.py`](tools/seo.py), puis `npm run seo`. Les règles d'écriture et les
+  requêtes qui amènent du trafic sont documentées dans le fichier.
+- **Les autres métadonnées** : `src/fragments/<slug>-head.html`.
 
 Les fragments de contenu sont désormais **la source de vérité** : ils sont écrits à la
 main et portent en première ligne le marqueur `<!-- réécrit à la main (phase 2) -->`.
@@ -88,6 +90,8 @@ main et portent en première ligne le marqueur `<!-- réécrit à la main (phase
 | `npm run check:runtime` | Requêtes en échec, erreurs JS, liens internes morts. |
 | `npm run check:interactions` | Menus, burger, galerie, carte, coordonnées : même comportement qu'avant ? |
 | `npm run check:textes` | Compare le **texte visible** de chaque page à celui du site d'origine. |
+| `npm run seo` | Applique les titres et descriptions de `tools/seo.py` aux `<head>`. |
+| `npm run check:seo` | Un titre unique par page, de la bonne longueur, URLs cohérentes. |
 
 Les trois derniers ont besoin que le site soit servi. Exemple complet :
 
@@ -155,8 +159,10 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   (extension Complianz absente) et a été reproduit à l'identique.
 - **Analytics** : le site d'origine charge un vieux tag Universal Analytics qui sert
   d'amorce au tag GA4 `G-HZ07V9F2TE`. Ici GA4 est posé directement.
-- **Métadonnées SEO** : les 16 pages partagent le même `<title>` et la même
-  `meta description` — fidèle à l'original, mais à corriger un jour.
+- **Titres et descriptions** : le site d'origine servait deux jeux de balises SEO,
+  dont un écrit en dur dans le thème qui écrasait les titres propres à chaque page.
+  Le bloc en dur est retiré ; les textes des 16 pages sont dans
+  [`tools/seo.py`](tools/seo.py), à modifier là puis `npm run seo`.
 - La galerie photos n'ouvre pas de visionneuse : c'est déjà le cas sur le site
   d'origine.
 - **Lien dans une liste à icônes** : sur « Notre philosophie », le lien vers Croc La Vie
