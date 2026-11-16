@@ -200,6 +200,29 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   demande qui n'en nourrit pas une. Les deux sont reliées depuis « Le lieu »,
   « Nous situer », « Présentation », « Offres » et le plan du site, et se citent
   l'une l'autre, mais **pas depuis le menu**, qui reste celui d'origine.
+- **Pied de page** : la colonne « Mots clés » listait cinq mots dans des `<span>`
+  (bourrage de mots-clés, sans lien). Elle est devenue « Nous trouver » et porte les
+  deux pages de proximité, « Nous situer » et « Nous contacter » — mêmes mots, mais
+  en liens vers du contenu réel, et présents sur les 18 pages. Cette colonne-là ne
+  change pas la hauteur : « Informations », plus haute, dicte la mesure.
+  La **politique de cookies** a ensuite été ajoutée à « Informations », qui passe à
+  sept entrées. Seul effet : **+25 px à partir de 1025 px de large**. En dessous, les
+  colonnes se répartissent sur deux rangées et c'est la colonne du logo (logo +
+  adresse sur deux lignes) qui fixe la hauteur, donc rien ne bouge ; sous 768 px la
+  bande est masquée.
+- **Images redimensionnées** : dix images étaient servies bien plus grandes que
+  leur emplacement. Deux causes distinctes.
+  Les cinq photos de la galerie n'avaient **aucun `srcset`** : 2560 px pour un
+  emplacement de 553 px. Trois variantes 1024 px ont été produites au besoin
+  (`cwebp -q 90 -resize 1024 0`), les deux autres existaient déjà.
+  Les cinq autres (logos partenaires, portrait de l'équipe, bandeau de presse)
+  avaient un `srcset`
+  complet mais un **`sizes` mensonger** hérité de WordPress — `(max-width: 1024px)
+  100vw, 1024px` — alors qu'Elementor les affiche dans des colonnes de 165 à
+  325 px. Seul le `sizes` a été corrigé, aucun fichier ajouté.
+  Résultat à densité 1 : **1062 Ko → 342 Ko, soit −719 Ko (68 %)**. Les largeurs
+  des `sizes` sont **mesurées dans le navigateur** à 375, 768 et 1440 px : les
+  réécrire au jugé ramène le problème.
 - **Distances** : celles de `/micro-creche-communes-rurales/` sont calculées à vol
   d'oiseau entre les coordonnées de la crèche et celles relevées sur OpenStreetMap,
   pas estimées. Les recalculer avant de les modifier.
