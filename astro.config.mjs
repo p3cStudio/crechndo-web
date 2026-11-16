@@ -87,7 +87,10 @@ function slugFromPath(pathname) {
 }
 
 export default defineConfig({
-  site: 'https://crechndo.org',
+  // Domaine du site, utilisé par le sitemap. Piloté par SITE_URL pour que le
+  // déploiement de test annonce ses propres URLs plutôt que celles du domaine
+  // définitif, qui n'existent pas encore.
+  site: process.env.SITE_URL || 'https://crechndo.org',
   base: process.env.BASE_PATH || '/',
   build: {
     format: 'directory', // /nous-contacter/ -> dist/nous-contacter/index.html

@@ -117,18 +117,26 @@ Trois écarts résiduels sont attendus et documentés :
 Le déploiement est automatique (`.github/workflows/deploy.yml`) : à chaque push sur
 `main`, l'action build et publie.
 
-Mise en route (une seule fois) :
+Mise en route (une seule fois) : le dépôt doit être **public** et
+**Settings → Pages → Build and deployment → Source** réglé sur **« GitHub Actions »**.
+Sans ça le build réussit mais la publication échoue avec un 404.
 
-1. Le dépôt GitHub doit être **public**.
-2. **Settings → Pages → Build and deployment → Source = « GitHub Actions »**.
-3. Pousser sur `main` → le site sort sur **https://p3cstudio.github.io/crechndo-web/**
+Ensuite, chaque push sur `main` publie le site sur
+**https://p3cstudio.github.io/crechndo-web/**.
 
-Le workflow build avec `BASE_PATH=/crechndo-web` (sous-dossier de l'URL github.io).
+Le workflow build avec deux variables :
+
+| Variable | Rôle |
+|---|---|
+| `BASE_PATH=/crechndo-web` | préfixe toutes les URLs, le site vivant dans un sous-dossier |
+| `SITE_URL=https://p3cstudio.github.io` | domaine annoncé par le sitemap |
 
 ### Basculer sur le domaine crechndo.org
 
 1. Créer `public/CNAME` contenant `crechndo.org`.
-2. Dans `.github/workflows/deploy.yml`, supprimer les deux lignes `env:` / `BASE_PATH`.
+2. Dans `.github/workflows/deploy.yml`, supprimer le bloc `env:` (`BASE_PATH` et
+   `SITE_URL`) : sans eux, le site se construit à la racine et le sitemap annonce
+   `https://crechndo.org/…`.
 3. Pointer le DNS vers GitHub Pages, puis renseigner le domaine dans
    **Settings → Pages → Custom domain**.
 

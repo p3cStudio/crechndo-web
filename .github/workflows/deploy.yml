@@ -32,9 +32,10 @@ jobs:
         # Déploiement de TEST sur https://p3cstudio.github.io/crechndo-web/
         # Pour basculer sur le domaine crechndo.org :
         #   1. créer public/CNAME contenant "crechndo.org"
-        #   2. supprimer les deux lignes "env:" / "BASE_PATH" ci-dessous
+        #   2. supprimer le bloc "env:" ci-dessous (BASE_PATH et SITE_URL)
         env:
           BASE_PATH: /crechndo-web
+          SITE_URL: https://p3cstudio.github.io
 
   deploy:
     needs: build
