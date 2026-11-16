@@ -208,8 +208,7 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   La **politique de cookies** a ensuite été ajoutée à « Informations », qui passe à
   sept entrées. Seul effet : **+25 px à partir de 1025 px de large**. En dessous, les
   colonnes se répartissent sur deux rangées et c'est la colonne du logo (logo +
-  adresse sur deux lignes) qui fixe la hauteur, donc rien ne bouge ; sous 768 px la
-  bande est masquée.
+  adresse sur deux lignes) qui fixe la hauteur, donc rien ne bouge.
 - **Images redimensionnées** : dix images étaient servies bien plus grandes que
   leur emplacement. Deux causes distinctes.
   Les cinq photos de la galerie n'avaient **aucun `srcset`** : 2560 px pour un
@@ -242,6 +241,20 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   Les liens de contact passent à 14 px et reçoivent du rembourrage sur mobile :
   la zone tactile passe de **14 px à 37 px de haut**. Sans `inline-block`, le
   rembourrage vertical d'un élément en ligne n'agrandirait pas la zone cliquable.
+- **Pictogrammes centrés** : la vignette d'un portrait (`.cnd-portrait__image`)
+  occupe 86 à 100 % de sa colonne, mais les pictogrammes ronds ne mesurent que
+  111 px. L'image étant en `display: block` sans marge automatique, elle restait
+  collée au bord gauche de la vignette alors que le titre et le texte, eux, sont
+  centrés : **66 px de décalage à 375 px, 14 px à 768, 58 px à 1440**. Le site
+  d'origine faisait la même chose ; c'est donc un **écart volontaire, à toutes
+  largeurs** — deux lignes de `margin: auto` sur `.cnd-portrait__image img`.
+  Touche l'accueil, `/offres-et-tarifs/`, `/micro-creche-arras/` et, à 1440 px
+  seulement, la vignette « Notre équipe » de `/presentation/` (une photo de
+  164 px dans une vignette de 245) ; ailleurs les images remplissent déjà leur
+  vignette et rien ne bouge. Effet mesuré en isolant la règle (même page avec et
+  sans) : **0,0 à 2,5 % de pixels, aucune hauteur modifiée**, sur l'accueil,
+  « Présentation », « Notre équipe », « Offres et tarifs » et la page Arras,
+  à 375, 768 et 1440 px.
 - **Distances** : celles de `/micro-creche-communes-rurales/` sont calculées à vol
   d'oiseau entre les coordonnées de la crèche et celles relevées sur OpenStreetMap,
   pas estimées. Les recalculer avant de les modifier.

@@ -1403,6 +1403,15 @@ h1.cnd-titre-bloc { line-height: 1.4em; }
   transform: translateY(-8px);
 }
 
+/* La vignette occupe une part de la colonne, mais un pictogramme de 111 px
+   n'en remplit pas la largeur : sans marge automatique il reste collé à
+   gauche, alors que le titre et le texte au-dessous sont centrés. Le site
+   d'origine faisait de même ; c'est un écart volontaire, à toutes largeurs. */
+.cnd-portrait__image img {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .cnd-portrait__nom {
   margin: 0;
   color: var(--cnd-turquoise);
