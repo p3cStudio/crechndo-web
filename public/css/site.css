@@ -610,7 +610,7 @@ a.cnd-bouton {
    --------------------------------------------------------------------------
    Trois bandeaux, dont deux s'excluent selon la largeur :
 
-     .cnd-pied-haut           les cinq colonnes, turquoise     ≥ 768 px
+     .cnd-pied-haut           les cinq colonnes, turquoise     toutes largeurs
      .cnd-pied-bas            mentions + signature, corail     ≥ 1025 px
      .cnd-pied-bas--compact   signature seule, corail          ≤ 1024 px
 
@@ -717,6 +717,22 @@ a.cnd-bouton {
 
 .cnd-pied-coord__icone .cnd-icone {
   display: block;
+}
+
+/* L'adresse, le téléphone et le courriel sont devenus actionnables. Sans
+   repère visuel, rien ne le laisse deviner : la couleur du pied de page est
+   conservée, seul un soulignement discret signale le lien. */
+.cnd-pied .cnd-pied-coord a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgb(255 255 255 / 0.45);
+  text-underline-offset: 2px;
+}
+
+.cnd-pied .cnd-pied-coord a:hover,
+.cnd-pied .cnd-pied-coord a:focus {
+  text-decoration-color: currentColor;
 }
 
 .cnd-pied-coord__texte {
@@ -876,8 +892,27 @@ a.cnd-bouton {
   .cnd-pied-bas--compact { display: block; }
 }
 
+/* Sous 768 px, le site d'origine masquait purement et simplement les cinq
+   colonnes : sur un téléphone, ni l'adresse, ni le numéro, ni le courriel
+   n'apparaissaient dans le pied de page — et la barre haute étant masquée elle
+   aussi, nulle part ailleurs non plus. Les colonnes s'empilent désormais, comme
+   sur n'importe quel pied de page mobile. */
 @media (max-width: 767px) {
-  .cnd-pied-haut { display: none; }
+  .cnd-pied-haut { padding: 36px 20px 16px; }
+  /* La marque sur toute la largeur, les quatre colonnes de liens deux par
+     deux : empilées une par une, le pied de page atteignait 946 px. */
+  .cnd-pied-col { width: 50%; }
+  .cnd-pied-col--marque { width: 100%; }
+  .cnd-pied-col__interne { padding: 0 6px 22px; }
+  .cnd-pied-col--marque > .cnd-pied-col__interne { margin-right: 0; }
+  .cnd-pied-logo { max-width: 220px; margin-left: auto; margin-right: auto; }
+  /* Sur un écran tactile, la cible du lien ne doit pas se limiter à la hauteur
+     du texte : 12 px de police donnaient une zone de 14 px de haut. On passe à
+     14 px et on ajoute du rembourrage, pour une cible d'une trentaine de pixels.
+     `inline-block` est nécessaire : le rembourrage vertical d'un élément en
+     ligne ne crée pas de zone cliquable. */
+  .cnd-pied-coord__texte { font-size: 14px; }
+  .cnd-pied .cnd-pied-coord a { display: inline-block; padding: 7px 10px; }
   .cnd-pied-bas--compact { padding: 30px 20px 20px; }
   .cnd-pied-bas__interne { padding: 0; }
 }

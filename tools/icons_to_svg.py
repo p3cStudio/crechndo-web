@@ -26,6 +26,9 @@ from fontTools.ttLib import TTFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTS = os.path.join(ROOT, "public", "fonts")
+# Les polices d'icônes ne sont plus livrées (phase 2) : on les relit dans le
+# cache du miroir. Sans ce repli, relancer le script viderait la planche.
+FONTS_SECOURS = os.path.join(ROOT, "tools", ".cache", "assets", "fonts")
 OUT = os.path.join(ROOT, "src", "fragments", "icons.json")
 SPRITE = os.path.join(ROOT, "src", "fragments", "icons-sprite.html")
 
@@ -38,11 +41,21 @@ ICONS = {
     "menu-bar": ("eicons.ttf", 0xE816),
     "close": ("eicons.ttf", 0xE87F),
     "creche-puce": ("creche.ttf", 0xE800),
+    "envelope": ("fa-solid-900.ttf", 0xF0E0),
 }
 
 
+def chemin_police(font_file: str) -> str | None:
+    """Le fichier de police, dans public/fonts ou, à défaut, dans le cache."""
+    for base in (FONTS, FONTS_SECOURS):
+        chemin = os.path.join(base, font_file)
+        if os.path.exists(chemin):
+            return chemin
+    return None
+
+
 def extract(font_file: str, codepoint: int) -> dict:
-    font = TTFont(os.path.join(FONTS, font_file))
+    font = TTFont(chemin_police(font_file))
     upm = font["head"].unitsPerEm
     cmap = font.getBestCmap()
     name = cmap.get(codepoint)
@@ -91,7 +104,7 @@ def extract(font_file: str, codepoint: int) -> dict:
 def main() -> int:
     icons = {}
     for name, (font_file, codepoint) in ICONS.items():
-        if not os.path.exists(os.path.join(FONTS, font_file)):
+        if not chemin_police(font_file):
             print(f"  police absente : {font_file}", file=sys.stderr)
             continue
         icons[name] = extract(font_file, codepoint)

@@ -223,6 +223,25 @@ racine, aussi bien dans le HTML (`src/lib/withBase.js`) que dans les CSS/JS
   Résultat à densité 1 : **1062 Ko → 342 Ko, soit −719 Ko (68 %)**. Les largeurs
   des `sizes` sont **mesurées dans le navigateur** à 375, 768 et 1440 px : les
   réécrire au jugé ramène le problème.
+- **Coordonnées actionnables** : dans le pied de page, l'adresse mène à l'itinéraire
+  Google Maps, le téléphone est un lien `tel:`, le courriel un `mailto:`, et un lien
+  pointe vers les avis Google de la fiche (`maps?cid=1781165689255930395`, soit le
+  CID `0x18b7f8c1e236aa1b` relevé sur la fiche). Le numéro de la barre haute est
+  lui aussi devenu cliquable. Un soulignement discret a été ajouté
+  (`.cnd-pied .cnd-pied-coord a`) : sans lui, rien ne distinguait ces liens du texte.
+  Coût mesuré : **+38 px à partir de 1025 px, +7 px entre 768 et 1024**.
+- **Pied de page affiché sur mobile** : le site d'origine le masquait entièrement
+  sous 768 px (`.cnd-pied-haut { display: none }`). La barre haute l'étant aussi,
+  ni l'adresse, ni le numéro, ni le courriel n'apparaissaient nulle part sur un
+  téléphone — c'est-à-dire là où un lien `tel:` sert le plus. Les colonnes
+  s'empilent désormais : la marque sur toute la largeur, les quatre colonnes de
+  liens deux par deux. Empilées une par une, la bande atteignait 946 px ; sur
+  deux rangs elle fait **775 px à 375 px**, sans débordement horizontal. C'est le
+  même parti que nidenvol, qui passe de 4 à 2 puis 1 colonne et ne masque jamais
+  son pied de page.
+  Les liens de contact passent à 14 px et reçoivent du rembourrage sur mobile :
+  la zone tactile passe de **14 px à 37 px de haut**. Sans `inline-block`, le
+  rembourrage vertical d'un élément en ligne n'agrandirait pas la zone cliquable.
 - **Distances** : celles de `/micro-creche-communes-rurales/` sont calculées à vol
   d'oiseau entre les coordonnées de la crèche et celles relevées sur OpenStreetMap,
   pas estimées. Les recalculer avant de les modifier.
